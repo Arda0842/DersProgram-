@@ -401,7 +401,7 @@ function toast(msg, type) {
   t._t = setTimeout(function(){ t.className = 'toast'; }, 2600);
 }
 function color(i) { return COLORS[i % COLORS.length]; }
-function initials(name) {
+function ini(name) {
   return String(name||'').split(' ').map(function(w){ return w[0]||''; }).slice(0,2).join('').toUpperCase();
 }
 
@@ -477,8 +477,9 @@ function fillTHR() {
   if (cur) sel.value = cur;
 }
 function addTeacher() {
-  var name = (document.getElementById('tN').value||'').trim();
+  var name   = (document.getElementById('tN').value||'').trim();
   var branch = (document.getElementById('tB').value||'').trim();
+  var hr     = document.getElementById('tHR').value;
   if (!name)   { toast('Ad Soyad girin', 'err'); return; }
   if (!branch) { toast('Branş girin', 'err'); return; }
   var blocked = [];
@@ -487,9 +488,9 @@ function addTeacher() {
     id: 't' + Date.now(),
     name: name,
     branch: branch,
-    homeroom: hrOn,
+    homeroom: hr,
     blocked: blocked,
-    color: color(DB.teachers.length)
+    color: clr(DB.teachers.length)
   };
   var lessons = tempDers.slice();
   if (lessons.indexOf(branch) < 0) lessons.unshift(branch);
@@ -502,6 +503,8 @@ function addTeacher() {
   document.querySelectorAll('#tDays .day').forEach(function(b){ b.classList.remove('off'); });
   tempDers = []; renderTDersList();
   renderTeachers();
+  fillSelects();
+  fillTHR();
   toast(name + ' kaydedildi', 'ok');
 }
 function remTeacher(id) {
@@ -533,7 +536,7 @@ function renderTeachers() {
     var ls = (t.lessons && t.lessons.length) ? '<br><span style="color:var(--blue);font-size:10px;">&#128218; ' + t.lessons.map(esc).join(', ') + '</span>' : '';
     var hrTag = t.homeroom ? '<span class="hr-tag">' + esc(t.homeroom) + ' Sınıf Öğrt.</span>' : '';
     return '<div class="tcard">'
-      + '<div class="tav" style="background:' + t.color + '">' + esc(initials(t.name)) + '</div>'
+      + '<div class="tav" style="background:' + t.color + '">' + esc(ini(t.name)) + '</div>'
       + '<div class="tinfo"><div class="tname">' + esc(t.name) + hrTag + '</div>'
       + '<div class="tmeta">' + esc(t.branch) + ls + bd + '</div></div>'
       + '<button class="btn danger xs" onclick="remTeacher(\'' + t.id + '\')">Sil</button>'
@@ -617,7 +620,7 @@ function addLesson() {
   if (!name) { toast('Ders adı girin', 'err'); return; }
   if (!selCls.length) { toast('En az 1 sınıf seçin', 'err'); return; }
   var t = DB.teachers.find(function(x){ return x.id === tid; });
-  var c = t ? t.color : color(DB.entries.length);
+  var c = t ? t.color : clr(DB.entries.length);
   selCls.forEach(function(cls) {
     DB.entries.push({ id:'e'+Date.now()+Math.random(), tid:tid, lesson:name, name:name, cls:cls, hrs:hrs, color:c });
   });
