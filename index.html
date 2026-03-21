@@ -694,18 +694,12 @@ function cleanSched() {
 }
 
 function canPlace(entry, day, si) {
+  // Slot dolu mu?
   if (DB.schedule[day][si] !== null) return false;
+  // Öğretmen o gün yok mu?
   var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
   if (t && t.blocked && t.blocked.indexOf(day) >= 0) return false;
-  var inDay = LS.filter(function(s){ return DB.schedule[day][s] === entry.id; }).length;
-  if (inDay >= 2) return false;
-  if (inDay === 1) {
-    var pos = LS.indexOf(si);
-    var existPos = -1;
-    LS.forEach(function(s, i){ if (DB.schedule[day][s] === entry.id) existPos = i; });
-    var adj = (pos === existPos - 1 || pos === existPos + 1) && Math.abs(si - LS[existPos]) === 1;
-    if (!adj) return false;
-  }
+  // Aynı öğretmen aynı saatte başka günde var mı? (çakışma)
   for (var di = 0; di < DAYS.length; di++) {
     var d2 = DAYS[di];
     if (d2 === day) continue;
@@ -758,37 +752,51 @@ function autoSchedule() {
   tasks.forEach(function(entry) {
     var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
     var blocked = (t && t.blocked) ? t.blocked : [];
-    var avDays = shuf(DAYS.filter(function(d){ return blocked.indexOf(d) < 0; }));
-    var placed = 0;
+    var avDays = DAYS.filter(function(d){ return blocked.indexOf(d) < 0; });
+    var remaining = entry.hrs;
 
-    if (entry.hrs >= 2) {
-      avDays.forEach(function(day) {
-        if (placed >= entry.hrs) return;
-        var alr = LS.filter(function(s){ return DB.schedule[day][s] === entry.id; }).length;
-        if (alr > 0) return;
-        for (var pi = 0; pi < LS.length - 1; pi++) {
-          var si1 = LS[pi], si2 = LS[pi+1];
-          if (si2 - si1 !== 1) continue;
-          if (canPlace(entry, day, si1) && canPlace(entry, day, si2)) {
-            DB.schedule[day][si1] = entry.id;
-            DB.schedule[day][si2] = entry.id;
-            placed += 2;
-            break;
-          }
+    // Pass 1: ikili bitisik bloklar koy
+    shuf(avDays).forEach(function(day) {
+      if (remaining < 2) return;
+      var alr = LS.filter(function(s){ return DB.schedule[day][s] === entry.id; }).length;
+      if (alr >= 2) return;
+      for (var pi = 0; pi < LS.length - 1; pi++) {
+        var si1 = LS[pi], si2 = LS[pi+1];
+        if (si2 - si1 !== 1) continue;
+        if (canPlace(entry, day, si1) && canPlace(entry, day, si2)) {
+          DB.schedule[day][si1] = entry.id;
+          DB.schedule[day][si2] = entry.id;
+          remaining -= 2;
+          break;
         }
-      });
-    }
+      }
+    });
 
-    if (placed < entry.hrs) {
-      var sinDays = shuf(avDays.filter(function(d){
-        return LS.every(function(s){ return DB.schedule[d][s] !== entry.id; });
-      }));
-      var singleSlots = [];
-      sinDays.forEach(function(d){ LS.forEach(function(si){ singleSlots.push({d:d,si:si}); }); });
-      singleSlots = shuf(singleSlots);
-      singleSlots.forEach(function(x) {
-        if (placed >= entry.hrs) return;
-        if (canPlace(entry, x.d, x.si)) { DB.schedule[x.d][x.si] = entry.id; placed++; }
+    // Pass 2: kalan saatleri tekli yerleştir
+    if (remaining > 0) {
+      var allSlots = [];
+      shuf(avDays).forEach(function(d) {
+        shuf(LS.slice()).forEach(function(si) { allSlots.push({d:d, si:si}); });
+      });
+      allSlots.forEach(function(x) {
+        if (remaining <= 0) return;
+        // max 2/gun
+        var alr = LS.filter(function(s){ return DB.schedule[x.d][s] === entry.id; }).length;
+        if (alr >= 2) return;
+        // bitisiklik: o gunde 1 varsa yeni slot LS dizisinde ona bitisik olmali
+        if (alr === 1) {
+          var existSi = -1;
+          LS.forEach(function(s){ if (DB.schedule[x.d][s] === entry.id) existSi = s; });
+          var existIdx = LS.indexOf(existSi);
+          var newIdx = LS.indexOf(x.si);
+          // LS dizisinde komsu olmali VE gercek slot numaralari da 1 fark olmali (ogleden gecmesin)
+          if (Math.abs(newIdx - existIdx) !== 1) return;
+          if (Math.abs(x.si - existSi) !== 1) return;
+        }
+        if (canPlace(entry, x.d, x.si)) {
+          DB.schedule[x.d][x.si] = entry.id;
+          remaining--;
+        }
       });
     }
   });
