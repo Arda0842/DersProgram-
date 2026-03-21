@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ders Programı Oluşturucu</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#f7f6f3;
+  --w:#fff;
+  --ink:#111;
+  --ink2:#444;
+  --ink3:#999;
+  --line:#e5e3de;
+  --blue:#2563eb;
+  --blue-l:#eff4ff;
+  --green:#16a34a;
+  --green-l:#f0fdf4;
+  --red:#dc2626;
+  --red-l:#fef2f2;
+  --amber:#d97706;
+  --amber-l:#fffbeb;
+  --r:10px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 12px rgba(0,0,0,.05);
+}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;}
+
+/* ── Layout ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── Sidebar ── */
+.sidebar{width:340px;min-width:340px;background:var(--w);border-right:1.5px solid var(--line);display:flex;flex-direction:column;overflow:hidden;}
+.sb-head{padding:22px 20px 16px;border-bottom:1px solid var(--line);}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:2px;}
+.sb-icon{width:34px;height:34px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.sb-title{font-size:15px;font-weight:800;letter-spacing:-.3px;}
+.sb-sub{font-size:11px;color:var(--ink3);padding-left:44px;margin-top:1px;}
+.sb-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:18px;}
+.sb-footer{padding:16px 18px;border-top:1px solid var(--line);}
+
+/* Section */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;}
+
+/* Inputs */
+input[type=text],select{
+  width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;
+  font-family:'Sora',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);
+  outline:none;transition:border-color .15s,background .15s;
+}
+input[type=text]:focus,select:focus{border-color:var(--blue);background:var(--w);}
+input::placeholder{color:var(--ink3);}
+
+/* Buttons */
+.btn{padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{background:#1d4ed8;transform:translateY(-1px);}
+.btn-ghost{background:var(--bg);color:var(--ink2);border:1.5px solid var(--line);}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:#15803d;transform:translateY(-1px);}
+.btn-red{background:var(--red-l);color:var(--red);border:1.5px solid #fecaca;}
+.btn-red:hover{background:#fee2e2;}
+.btn-sm{padding:6px 11px;font-size:12px;}
+.btn-full{width:100%;padding:13px;}
+
+/* Color picker — hidden, auto-assigned */
+.color-grid{display:none;}
+
+/* Counter */
+.counter{display:flex;align-items:center;gap:8px;}
+.cnt-btn{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--line);background:var(--w);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:all .15s;line-height:1;}
+.cnt-btn:hover{border-color:var(--blue);color:var(--blue);}
+.cnt-val{font-size:17px;font-weight:700;min-width:26px;text-align:center;}
+
+/* Teacher card */
+.t-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:9px;}
+.t-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.t-info{flex:1;min-width:0;}
+.t-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.t-meta{font-size:10px;color:var(--ink3);margin-top:1px;}
+.t-del{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:15px;padding:2px;opacity:.5;transition:opacity .15s;}
+.t-del:hover{opacity:1;color:var(--red);}
+
+/* Chip */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:var(--blue-l);color:var(--blue);border:1px solid #bfdbfe;}
+
+/* ── Main ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:56px;background:var(--w);border-bottom:1.5px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:10px;flex-shrink:0;}
+.topbar-tabs{display:flex;gap:3px;}
+.ttab{padding:7px 16px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:500;color:var(--ink3);transition:all .15s;}
+.ttab.active{background:var(--blue-l);color:var(--blue);font-weight:700;}
+.ttab:hover:not(.active){background:var(--bg);color:var(--ink);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.school-pill{font-size:11px;color:var(--ink3);border:1px solid var(--line);border-radius:6px;padding:5px 10px;display:none;}
+.school-pill strong{color:var(--ink);}
+
+.content{flex:1;overflow:auto;padding:24px;}
+
+/* School info */
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;background:var(--w);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--sh);margin-bottom:20px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.flabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);}
+
+/* Schedule */
+.tbl-wrap{background:var(--w);border:1.5px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:auto;}
+table{width:100%;border-collapse:collapse;min-width:600px;}
+th{background:var(--bg);padding:11px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);text-align:center;border-bottom:1.5px solid var(--line);}
+th:first-child{text-align:left;padding-left:14px;width:80px;}
+td{padding:4px 4px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;}
+td:first-child{padding:0;background:var(--bg);border-right:2px solid var(--line);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.row-head{padding:10px 14px;text-align:center;}
+.row-num{font-size:13px;font-weight:800;color:var(--ink);}
+.row-lbl{font-size:9px;color:var(--ink3);font-weight:500;margin-top:1px;}
+
+/* Cell */
+.cell{min-height:68px;border-radius:7px;border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.cell:hover{border-color:var(--blue);border-style:solid;background:var(--blue-l);}
+.cell.filled{border-style:solid;border-color:rgba(37,99,235,.22);background:var(--blue-l);cursor:pointer;align-items:flex-start;padding:8px 9px;flex-direction:column;gap:2px;}
+.cell.filled:hover{border-color:var(--blue);}
+.cell-plus{color:var(--ink3);font-size:20px;opacity:.35;}
+.cell:hover .cell-plus{opacity:.7;color:var(--blue);}
+.c-lesson{font-size:12px;font-weight:700;line-height:1.2;}
+.c-cls{font-size:10px;font-weight:600;margin-top:1px;}
+.c-tch{font-size:10px;color:var(--ink3);}
+.c-del{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:4px;background:rgba(220,38,38,.1);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;color:var(--red);font-size:11px;padding:0;line-height:1;}
+.cell.filled:hover .c-del{display:flex;}
+.c-del:hover{background:rgba(220,38,38,.2);}
+
+/* Lunch row */
+.lunch-row td{background:var(--amber-l)!important;}
+.lunch-row td:first-child{background:var(--bg)!important;}
+.lunch-inner{display:flex;align-items:center;justify-content:center;height:38px;color:var(--amber);font-size:11px;font-weight:700;gap:5px;letter-spacing:.3px;}
+
+/* ── Modal ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(10,10,10,.45);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:var(--w);border-radius:16px;width:100%;max-width:400px;box-shadow:0 16px 60px rgba(0,0,0,.2);animation:pop .22s cubic-bezier(.34,1.4,.64,1);}
+@keyframes pop{from{opacity:0;transform:scale(.95) translateY(10px);}to{opacity:1;transform:none;}}
+.m-head{padding:20px 22px 14px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.m-title{font-size:15px;font-weight:800;}
+.m-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.m-x{background:var(--bg);border:1px solid var(--line);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--ink3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.m-x:hover{color:var(--ink);background:var(--line);}
+.m-body{padding:18px 22px;display:flex;flex-direction:column;gap:12px;}
+.m-foot{padding:0 22px 18px;display:flex;gap:8px;justify-content:flex-end;}
+
+/* Conflict badge */
+.conflict-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;background:var(--red-l);color:var(--red);border:1px solid #fecaca;}
+.ok-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;background:var(--green-l);color:var(--green);border:1px solid #bbf7d0;}
+
+/* Empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:80px 20px;color:var(--ink3);text-align:center;}
+.empty-ico{font-size:52px;opacity:.35;}
+.empty-h{font-size:16px;font-weight:700;color:var(--ink2);}
+.empty-p{font-size:13px;line-height:1.7;max-width:340px;}
+
+/* Stats */
+.stats{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.stat{background:var(--w);border:1px solid var(--line);border-radius:8px;padding:10px 14px;flex:1;min-width:120px;}
+.stat-num{font-size:20px;font-weight:800;color:var(--blue);}
+.stat-lbl{font-size:10px;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-top:2px;}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink);color:#fff;padding:9px 18px;border-radius:100px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:var(--red);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px;}
+
+/* Responsive */
+@media(max-width:800px){.sidebar{width:280px;min-width:280px;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="sb-head">
+    <div class="sb-logo">
+      <div class="sb-icon">📚</div>
+      <div class="sb-title">Ders Programı</div>
+    </div>
+    <div class="sb-sub">Çakışmasız Otomatik Atama</div>
+  </div>
+
+  <div class="sb-body">
+
+    <!-- Öğretmen Ekle -->
+    <div>
+      <div class="sec-label">Öğretmen / Ders / Sınıf Ekle</div>
+      <div style="display:flex;flex-direction:column;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:12px;">
+        <input type="text" id="tName" placeholder="Öğretmen Adı Soyadı">
+        <input type="text" id="tLesson" placeholder="Ders Adı (örn: Matematik)">
+        <input type="text" id="tClass" placeholder="Sınıf (örn: 5-A)">
+
+        <div>
+          <div style="font-size:10px;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;">Haftalık Ders Saati</div>
+          <div class="counter">
+            <button class="cnt-btn" onclick="changeHrs(-1)">−</button>
+            <div class="cnt-val" id="hrsVal">2</div>
+            <button class="cnt-btn" onclick="changeHrs(1)">+</button>
+          </div>
+        </div>
+
+        <button class="btn btn-blue" style="margin-top:2px;" onclick="addEntry()">+ Ekle</button>
+      </div>
+    </div>
+
+    <!-- Öğretmen listesi -->
+    <div>
+      <div class="sec-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>Eklenenler <span id="entryCount" style="opacity:.5;font-weight:400;"></span></span>
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()" style="font-size:10px;padding:4px 8px;">Temizle</button>
+      </div>
+      <div id="entryList" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+  </div>
+
+  <div class="sb-footer">
+    <button class="btn btn-blue btn-full" onclick="autoSchedule()">
+      ✦ Otomatik Program Oluştur
+    </button>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-tabs">
+      <button class="ttab active" id="tabTbl" onclick="showView('table')">Program Tablosu</button>
+      <button class="ttab" id="tabCfg" onclick="showView('config')">Okul Bilgileri</button>
+    </div>
+    <div class="topbar-right">
+      <div class="school-pill" id="schoolPill"></div>
+      <button class="btn btn-green btn-sm" onclick="downloadPDF()">⬇ PDF İndir</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Config view -->
+    <div id="viewConfig" style="display:none;">
+      <div class="info-grid">
+        <div class="fg"><div class="flabel">Okul Adı</div><input type="text" id="schoolName" placeholder="Okul adı..." oninput="updatePill()"></div>
+        <div class="fg"><div class="flabel">Eğitim Yılı</div><input type="text" id="schoolYear" value="2025-2026" oninput="updatePill()"></div>
+        <div class="fg"><div class="flabel">Dönem</div>
+          <select id="schoolSem" onchange="updatePill()">
+            <option>1. Dönem</option><option>2. Dönem</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--w);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--sh);">
+        <div class="sec-label" style="margin-bottom:12px;">Haftalık Günler (Cumartesi hariç)</div>
+        <div style="display:flex;gap:6px;">
+          <div class="chip">Pazartesi</div>
+          <div class="chip">Salı</div>
+          <div class="chip">Çarşamba</div>
+          <div class="chip">Perşembe</div>
+          <div class="chip">Cuma</div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--ink3);line-height:1.6;">
+          ℹ️ Her gün <strong style="color:var(--ink);">7 ders</strong> — 4. ve 5. ders arasında <strong style="color:var(--amber);">Öğle Arası</strong> bulunmaktadır.
+        </div>
+      </div>
+    </div>
+
+    <!-- Table view -->
+    <div id="viewTable">
+      <!-- Empty -->
+      <div id="emptyState" class="empty">
+        <div class="empty-ico">🗓</div>
+        <div class="empty-h">Henüz program oluşturulmadı</div>
+        <div class="empty-p">Sol panelden öğretmen / ders / sınıf bilgilerini girin, ardından <strong>"Otomatik Program Oluştur"</strong> butonuna basın.</div>
+      </div>
+
+      <!-- Schedule -->
+      <div id="scheduleArea" style="display:none;">
+        <div class="stats" id="statsBar"></div>
+        <div class="tbl-wrap">
+          <table id="tbl"></table>
+        </div>
+        <div id="conflictWarn" style="margin-top:12px;display:none;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="m-head">
+      <div>
+        <div class="m-title" id="mTitle">Hücreyi Düzenle</div>
+        <div class="m-sub" id="mSub"></div>
+      </div>
+      <button class="m-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="m-body">
+      <div class="fg">
+        <div class="flabel">Ders / Öğretmen Seç</div>
+        <select id="mEntry">
+          <option value="">— Boş Bırak —</option>
+        </select>
+      </div>
+      <div id="mConflict" style="display:none;"></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">İptal</button>
+      <button class="btn btn-blue btn-sm" onclick="saveCell()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════
+const DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma'];
+// 8 rows: 1-4 lesson, lunch, 5-7 lesson (indices 0-7, index 4 = lunch)
+const SLOTS = [
+  {label:'1. Ders', type:'lesson'},
+  {label:'2. Ders', type:'lesson'},
+  {label:'3. Ders', type:'lesson'},
+  {label:'4. Ders', type:'lesson'},
+  {label:'Öğle Arası', type:'lunch'},
+  {label:'5. Ders', type:'lesson'},
+  {label:'6. Ders', type:'lesson'},
+  {label:'7. Ders', type:'lesson'},
+];
+const LESSON_SLOTS = [0,1,2,3,5,6,7]; // indices of actual lesson rows
+
+const COLORS = ['#2563eb','#16a34a','#dc2626','#9333ea','#ea580c','#0891b2','#d97706','#4f46e5','#be185d','#065f46'];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+let tempHrs = 2;
+
+const S = {
+  entries: [],        // [{name, lesson, cls, color, hours}]
+  // schedule[day][slotIdx] = entryIdx | null
+  schedule: {}
+};
+
+// Init schedule grid
+function initGrid() {
+  S.schedule = {};
+  DAYS.forEach(d => {
+    S.schedule[d] = {};
+    LESSON_SLOTS.forEach(si => S.schedule[d][si] = null);
+  });
+}
+initGrid();
+
+
+function changeHrs(d){tempHrs=Math.max(1,Math.min(25,tempHrs+d));document.getElementById('hrsVal').textContent=tempHrs;}
+
+// ═══════════════════════════════════════
+//  ENTRIES
+// ═══════════════════════════════════════
+function addEntry() {
+  const name = document.getElementById('tName').value.trim();
+  const lesson = document.getElementById('tLesson').value.trim();
+  const cls = document.getElementById('tClass').value.trim();
+  if(!name){toast('Öğretmen adı giriniz',true);return;}
+  if(!lesson){toast('Ders adı giriniz',true);return;}
+  if(!cls){toast('Sınıf giriniz',true);return;}
+  const autoColor = COLORS[S.entries.length % COLORS.length];
+  S.entries.push({name,lesson,cls,color:autoColor,hours:tempHrs});
+  document.getElementById('tName').value='';
+  document.getElementById('tLesson').value='';
+  document.getElementById('tClass').value='';
+  renderEntries();
+  toast(`${name} — ${lesson} (${cls}) eklendi`);
+}
+
+function removeEntry(i) {
+  S.entries.splice(i,1);
+  // clean schedule
+  DAYS.forEach(d=>LESSON_SLOTS.forEach(si=>{if(S.schedule[d][si]===i)S.schedule[d][si]=null;else if(S.schedule[d][si]>i)S.schedule[d][si]--;}));
+  renderEntries();
+  if(document.getElementById('scheduleArea').style.display!=='none') renderTable();
+}
+
+function clearAll(){
+  if(S.entries.length===0)return;
+  if(confirm('Tüm öğretmen ve dersleri silmek istediğinizden emin misiniz?')){
+    S.entries=[];initGrid();renderEntries();
+    document.getElementById('scheduleArea').style.display='none';
+    document.getElementById('emptyState').style.display='flex';
+  }
+}
+
+function renderEntries() {
+  const el=document.getElementById('entryList');
+  const cnt=document.getElementById('entryCount');
+  cnt.textContent=S.entries.length?`(${S.entries.length})`:'';
+  el.innerHTML='';
+  S.entries.forEach((e,i)=>{
+    const init=e.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const div=document.createElement('div');
+    div.className='t-card';
+    div.innerHTML=`
+      <div class="t-av" style="background:${e.color}">${init}</div>
+      <div class="t-info">
+        <div class="t-name">${e.name}</div>
+        <div class="t-meta">${e.lesson} · ${e.cls} · <strong>${e.hours} saat/hafta</strong></div>
+      </div>
+      <button class="t-del" onclick="removeEntry(${i})">×</button>
+    `;
+    el.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════
+//  AUTO-SCHEDULER
+// ═══════════════════════════════════════
+function autoSchedule() {
+  if(S.entries.length===0){toast('En az 1 ders ekleyin',true);return;}
+
+  initGrid();
+
+  // We need to place each entry's hours across the week
+  // Constraints:
+  //  1. Same slot-day: only 1 entry
+  //  2. Same teacher: not in same slot across days (teacher can't be in two places)
+  //  3. Same CLASS: not in same slot across days (class can't have two lessons same period)
+  //  4. Max 2 consecutive for same entry per day (block), but not 3 in a row
+  //  5. Distribute across days evenly
+
+  // Build task list: for each entry, need to place `hours` lessons
+  const tasks = S.entries.map((e,i)=>({idx:i,rem:e.hours})).filter(t=>t.rem>0);
+
+  // All possible (day, slotIdx) pairs
+  const allSlots = [];
+  DAYS.forEach(d=>LESSON_SLOTS.forEach(si=>allSlots.push({d,si})));
+
+  // Shuffle helper
+  const shuffle = arr=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
+
+  // Sort tasks by most hours first (greedy)
+  tasks.sort((a,b)=>b.rem-a.rem);
+
+  let totalAttempts = 0;
+  const MAX_ATTEMPTS = 5000;
+
+  for(const task of tasks) {
+    const entry = S.entries[task.idx];
+    let placed = 0;
+    let attempts = 0;
+
+    // Try to place as 2-block first, then singles
+    // day-by-day placement for blocks
+    const dayOrder = shuffle([...DAYS]);
+
+    // Pass 1: place 2-consecutive blocks
+    for(const day of dayOrder) {
+      if(placed >= task.rem) break;
+      if(task.rem - placed < 2) break; // need at least 2 remaining for block
+      // Find consecutive free slots in this day
+      for(let pi=0; pi<LESSON_SLOTS.length-1; pi++) {
+        const si1 = LESSON_SLOTS[pi];
+        const si2 = LESSON_SLOTS[pi+1];
+        // Check no 3-in-row: don't allow if [pi-1] also same entry
+        const prevSi = pi>0 ? LESSON_SLOTS[pi-1] : -1;
+        if(prevSi>=0 && S.schedule[day][prevSi]===task.idx) continue;
+        if(canPlace(task.idx,day,si1) && canPlace(task.idx,day,si2)) {
+          S.schedule[day][si1]=task.idx;
+          S.schedule[day][si2]=task.idx;
+          placed+=2;
+          if(placed>=task.rem) break;
+          pi++; // skip next since it's used
+        }
+      }
+    }
+
+    // Pass 2: place singles for remaining
+    const slotOrder = shuffle([...allSlots]);
+    for(const {d,si} of slotOrder) {
+      if(placed>=task.rem) break;
+      if(canPlace(task.idx,d,si)) {
+        // Check max 2 consecutive - don't create 3 in row
+        if(!wouldCreate3(task.idx,d,si)) {
+          S.schedule[d][si]=task.idx;
+          placed++;
+        }
+      }
+      if(++totalAttempts>MAX_ATTEMPTS) break;
+    }
+  }
+
+  renderTable();
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('scheduleArea').style.display='block';
+  showView('table');
+  toast('Program oluşturuldu!');
+}
+
+function canPlace(eIdx, day, si) {
+  // Slot must be free
+  if(S.schedule[day][si]!==null) return false;
+  const entry = S.entries[eIdx];
+  // Teacher conflict: same teacher, same slot, any other day
+  for(const d of DAYS) {
+    if(d===day) continue;
+    const occ = S.schedule[d][si];
+    if(occ!==null && S.entries[occ].name===entry.name) return false;
+  }
+  // Class conflict: same class, same slot, any other day
+  for(const d of DAYS) {
+    if(d===day) continue;
+    const occ = S.schedule[d][si];
+    if(occ!==null && S.entries[occ].cls===entry.cls) return false;
+  }
+  return true;
+}
+
+function wouldCreate3(eIdx, day, si) {
+  const pos = LESSON_SLOTS.indexOf(si);
+  let count = 1;
+  // Check before
+  if(pos>0 && S.schedule[day][LESSON_SLOTS[pos-1]]===eIdx) count++;
+  if(pos>1 && S.schedule[day][LESSON_SLOTS[pos-2]]===eIdx) count++;
+  if(pos<LESSON_SLOTS.length-1 && S.schedule[day][LESSON_SLOTS[pos+1]]===eIdx) count++;
+  return count >= 3;
+}
+
+// ═══════════════════════════════════════
+//  RENDER TABLE
+// ═══════════════════════════════════════
+function renderTable() {
+  const tbl = document.getElementById('tbl');
+
+  // Header
+  let h = '<thead><tr><th style="width:80px;">Sıra</th>';
+  DAYS.forEach(d=>h+=`<th>${d}</th>`);
+  h+='</tr></thead><tbody>';
+
+  SLOTS.forEach((slot,si)=>{
+    const isLunch = slot.type==='lunch';
+    h+=`<tr class="${isLunch?'lunch-row':''}">`;
+    h+=`<td><div class="row-head"><div class="row-num">${isLunch?'☕':slot.label.split('.')[0]}</div><div class="row-lbl">${isLunch?'Öğle Arası':slot.label.split('. ')[1]}</div></div></td>`;
+
+    if(isLunch){
+      DAYS.forEach(()=>h+=`<td><div class="lunch-inner">☕ Öğle Arası</div></td>`);
+    } else {
+      DAYS.forEach(day=>{
+        const eIdx = S.schedule[day][si];
+        const key = `${day}_${si}`;
+        if(eIdx!==null && eIdx!==undefined){
+          const e=S.entries[eIdx];
+          const r=parseInt(e.color.slice(1,3),16),g=parseInt(e.color.slice(3,5),16),b=parseInt(e.color.slice(5,7),16);
+          const bg=`rgba(${r},${g},${b},0.10)`,bdr=`rgba(${r},${g},${b},0.30)`,txt=e.color;
+          h+=`<td>
+            <div class="cell filled" style="background:${bg};border-color:${bdr};" onclick="openModal('${day}',${si})">
+              <button class="c-del" onclick="event.stopPropagation();clearCell('${day}',${si})">×</button>
+              <div class="c-lesson" style="color:${txt}">${e.lesson}</div>
+              <div class="c-cls" style="color:${txt}">${e.cls}</div>
+              <div class="c-tch">${e.name}</div>
+            </div>
+          </td>`;
+        } else {
+          h+=`<td><div class="cell" onclick="openModal('${day}',${si})"><span class="cell-plus">+</span></div></td>`;
+        }
+      });
+    }
+    h+='</tr>';
+  });
+
+  h+='</tbody>';
+  tbl.innerHTML=h;
+
+  updateStats();
+  checkConflicts();
+}
+
+function clearCell(day,si){
+  S.schedule[day][si]=null;
+  renderTable();
+}
+
+function updateStats(){
+  const placed=DAYS.reduce((acc,d)=>acc+LESSON_SLOTS.filter(si=>S.schedule[d][si]!==null).length,0);
+  const total=DAYS.length*LESSON_SLOTS.length;
+  const teachers=new Set(S.entries.map(e=>e.name)).size;
+  document.getElementById('statsBar').innerHTML=`
+    <div class="stat"><div class="stat-num">${S.entries.length}</div><div class="stat-lbl">Ders / Öğretmen</div></div>
+    <div class="stat"><div class="stat-num">${placed}</div><div class="stat-lbl">Atanan Ders</div></div>
+    <div class="stat"><div class="stat-num">${total-placed}</div><div class="stat-lbl">Boş Slot</div></div>
+    <div class="stat"><div class="stat-num">${teachers}</div><div class="stat-lbl">Öğretmen</div></div>
+  `;
+}
+
+function checkConflicts(){
+  const warn=document.getElementById('conflictWarn');
+  const conflicts=[];
+  // Check teacher double-booking per slot
+  LESSON_SLOTS.forEach(si=>{
+    const byTeacher={};
+    DAYS.forEach(d=>{
+      const ei=S.schedule[d][si];
+      if(ei!==null){
+        const n=S.entries[ei].name;
+        if(!byTeacher[n])byTeacher[n]=[];
+        byTeacher[n].push(d);
+      }
+    });
+    Object.entries(byTeacher).forEach(([name,days])=>{
+      if(days.length>1) conflicts.push(`⚠️ ${name} — ${SLOTS[si].label} saatinde birden fazla günde (${days.join(', ')})`);
+    });
+  });
+  // Check class double per slot
+  LESSON_SLOTS.forEach(si=>{
+    const byCls={};
+    DAYS.forEach(d=>{
+      const ei=S.schedule[d][si];
+      if(ei!==null){
+        const c=S.entries[ei].cls;
+        if(!byCls[c])byCls[c]=[];
+        byCls[c].push(d);
+      }
+    });
+    Object.entries(byCls).forEach(([cls,days])=>{
+      if(days.length>1) conflicts.push(`⚠️ ${cls} sınıfı — ${SLOTS[si].label} saatinde birden fazla günde (${days.join(', ')})`);
+    });
+  });
+
+  if(conflicts.length){
+    warn.style.display='block';
+    warn.innerHTML=`<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px;font-size:12px;color:#dc2626;line-height:1.8;">`+conflicts.map(c=>`<div>${c}</div>`).join('')+`</div>`;
+  } else {
+    warn.style.display='none';
+  }
+}
+
+// ═══════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════
+let pendingDay=null, pendingSi=null;
+
+function openModal(day,si){
+  if(SLOTS[si].type==='lunch') return;
+  pendingDay=day; pendingSi=si;
+  document.getElementById('mTitle').textContent='Hücreyi Düzenle';
+  document.getElementById('mSub').textContent=`${day} · ${SLOTS[si].label}`;
+
+  const sel=document.getElementById('mEntry');
+  sel.innerHTML='<option value="">— Boş Bırak —</option>';
+  S.entries.forEach((e,i)=>sel.innerHTML+=`<option value="${i}">${e.lesson} — ${e.cls} (${e.name})</option>`);
+
+  const cur=S.schedule[day][si];
+  sel.value=cur!==null?cur:'';
+
+  // Show conflict info
+  const cd=document.getElementById('mConflict');
+  sel.onchange=()=>{
+    const v=parseInt(sel.value);
+    if(isNaN(v)){cd.style.display='none';return;}
+    // Simulate placing
+    const old=S.schedule[day][si];
+    S.schedule[day][si]=null;
+    const ok=canPlace(v,day,si);
+    S.schedule[day][si]=old;
+    cd.style.display='block';
+    cd.innerHTML=ok
+      ?`<span class="ok-badge">✓ Çakışma yok</span>`
+      :`<span class="conflict-badge">⚠ Çakışma var — yine de kaydedebilirsiniz</span>`;
+  };
+  sel.onchange();
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function saveCell(){
+  const v=document.getElementById('mEntry').value;
+  S.schedule[pendingDay][pendingSi]=v===''?null:parseInt(v);
+  closeModal();
+  renderTable();
+}
+
+function closeModal(){document.getElementById('overlay').classList.remove('open');pendingDay=null;pendingSi=null;}
+
+// ═══════════════════════════════════════
+//  VIEWS
+// ═══════════════════════════════════════
+function showView(v){
+  document.getElementById('viewTable').style.display=v==='table'?'block':'none';
+  document.getElementById('viewConfig').style.display=v==='config'?'block':'none';
+  document.getElementById('tabTbl').classList.toggle('active',v==='table');
+  document.getElementById('tabCfg').classList.toggle('active',v==='config');
+}
+
+function updatePill(){
+  const n=document.getElementById('schoolName').value;
+  const y=document.getElementById('schoolYear').value;
+  const s=document.getElementById('schoolSem').value;
+  const p=document.getElementById('schoolPill');
+  if(n){p.style.display='block';p.innerHTML=`<strong>${n}</strong> · ${y} · ${s}`;}
+  else p.style.display='none';
+}
+
+// ═══════════════════════════════════════
+//  PDF
+// ═══════════════════════════════════════
+function downloadPDF(){
+  if(document.getElementById('scheduleArea').style.display==='none'){toast('Önce programı oluşturun',true);return;}
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const W=297,H=210,mg=12;
+
+  const school=document.getElementById('schoolName').value||'Okul';
+  const year=document.getElementById('schoolYear').value||'2025-2026';
+  const sem=document.getElementById('schoolSem').value;
+
+  // BG
+  doc.setFillColor(247,246,243);doc.rect(0,0,W,H,'F');
+
+  // Header bar
+  doc.setFillColor(37,99,235);doc.rect(0,0,W,20,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(13);doc.setFont('helvetica','bold');
+  doc.text(school,mg,13);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.text(`${year}  ·  ${sem}  ·  Haftalık Ders Programı`,mg,18.5);
+  doc.setTextColor(180,200,255);doc.setFontSize(7.5);
+  doc.text(new Date().toLocaleDateString('tr-TR'),W-mg,13,{align:'right'});
+
+  // Table
+  const tableTop=24;
+  const colW=(W-2*mg-22)/DAYS.length;
+  const rowH=24; // slightly bigger for 8 rows
+  const firstW=22;
+  const availW=W-2*mg;
+
+  // Header row
+  doc.setFillColor(245,244,240);doc.rect(mg,tableTop,availW,10,'F');
+  doc.setDrawColor(229,227,222);doc.setLineWidth(0.25);doc.rect(mg,tableTop,availW,10,'D');
+  doc.setTextColor(153,153,153);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  doc.text('SIRA',mg+firstW/2,tableTop+6.5,{align:'center'});
+  DAYS.forEach((d,di)=>doc.text(d.toUpperCase(),mg+firstW+di*colW+colW/2,tableTop+6.5,{align:'center'}));
+
+  // Data rows
+  SLOTS.forEach((slot,si)=>{
+    const ry=tableTop+10+si*rowH;
+    const isLunch=slot.type==='lunch';
+    const lunchRH=12; // lunch row shorter
+    const actualRH=isLunch?lunchRH:rowH;
+
+    // Re-calculate y positions accounting for lunch being shorter
+    // Easier: fixed heights per row type
+    const rowY=tableTop+10+si*(rowH)+(isLunch?0:0);
+
+    // Row bg
+    if(isLunch){doc.setFillColor(255,251,235);}
+    else{doc.setFillColor(si%2===0?255:252,si%2===0?255:252,si%2===0?255:250);}
+    doc.rect(mg,rowY,availW,isLunch?lunchRH:rowH,'F');
+    doc.setDrawColor(229,227,222);doc.setLineWidth(0.2);
+    doc.rect(mg,rowY,availW,isLunch?lunchRH:rowH,'D');
+
+    // Row label col
+    doc.setFillColor(245,244,240);
+    doc.rect(mg,rowY,firstW,isLunch?lunchRH:rowH,'F');
+    if(isLunch){
+      doc.setTextColor(217,119,6);doc.setFontSize(7);doc.setFont('helvetica','bold');
+      doc.text('OGLE',mg+firstW/2,rowY+(lunchRH/2)+2,{align:'center'});
+    } else {
+      const num=slot.label.split('.')[0];
+      const lbl=slot.label.split('. ')[1]||'Ders';
+      doc.setTextColor(17,17,17);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text(`${num}.`,mg+firstW/2,rowY+rowH*0.42,{align:'center'});
+      doc.setTextColor(153,153,153);doc.setFontSize(6);doc.setFont('helvetica','normal');
+      doc.text(lbl,mg+firstW/2,rowY+rowH*0.72,{align:'center'});
+    }
+
+    if(isLunch){
+      const lx=mg+firstW;
+      doc.setFillColor(255,248,230);
+      doc.rect(lx+0.5,rowY+0.5,(colW*DAYS.length)-1,lunchRH-1,'F');
+      doc.setTextColor(217,119,6);doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+      doc.text('OGLE ARASI',lx+(colW*DAYS.length)/2,rowY+lunchRH/2+2.5,{align:'center'});
+    } else {
+      DAYS.forEach((day,di)=>{
+        const cx=mg+firstW+di*colW;
+        const eIdx=S.schedule[day][si];
+        if(eIdx!==null&&eIdx!==undefined){
+          const e=S.entries[eIdx];
+          const r=parseInt(e.color.slice(1,3),16),g=parseInt(e.color.slice(3,5),16),b=parseInt(e.color.slice(5,7),16);
+          doc.setFillColor(r+(255-r)*.88,g+(255-g)*.88,b+(255-b)*.88);
+          doc.rect(cx+1,rowY+1,colW-2,rowH-2,'F');
+          doc.setDrawColor(r,g,b);doc.setLineWidth(0.4);
+          doc.rect(cx+1,rowY+1,colW-2,rowH-2,'D');
+          doc.setTextColor(r*.5,g*.5,b*.5);
+          doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+          const ls=e.lesson.length>13?e.lesson.slice(0,12)+'.':e.lesson;
+          doc.text(ls,cx+colW/2,rowY+rowH*.34,{align:'center'});
+          doc.setTextColor(r*.6,g*.6,b*.6);doc.setFontSize(6.5);doc.setFont('helvetica','normal');
+          doc.text(e.cls,cx+colW/2,rowY+rowH*.57,{align:'center'});
+          doc.setTextColor(120,120,120);doc.setFontSize(5.5);
+          const tn=e.name.length>15?e.name.slice(0,14)+'.':e.name;
+          doc.text(tn,cx+colW/2,rowY+rowH*.78,{align:'center'});
+        }
+      });
+    }
+  });
+
+  // Footer
+  doc.setFillColor(245,244,240);doc.rect(0,H-8,W,8,'F');
+  doc.setTextColor(180,178,172);doc.setFontSize(6);doc.setFont('helvetica','normal');
+  doc.text(`${school} · ${year} ${sem} · Ders Programı Oluşturucu`,W/2,H-2.5,{align:'center'});
+
+  doc.save(`${school.replace(/ /g,'_')}_DersProgrami.pdf`);
+  toast('PDF indiriliyor...');
+}
+
+// ═══════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════
+function toast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show'+(err?' err':'');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
