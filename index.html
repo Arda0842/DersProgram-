@@ -62,6 +62,9 @@ input::placeholder{color:var(--ink3);}
 .days{display:flex;gap:5px;flex-wrap:wrap;}
 .day{padding:6px 10px;border-radius:7px;border:1.5px solid var(--line);background:var(--w);cursor:pointer;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--ink3);}
 .day.off{background:var(--rl);border-color:#fecaca;color:var(--red);text-decoration:line-through;}
+.bcell{padding:5px 8px;border:1px solid var(--line);text-align:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--ink3);background:var(--w);transition:all .1s;user-select:none;}
+.bcell:hover{background:var(--rl);color:var(--red);}
+.bcell.off{background:var(--rl);border-color:#fecaca;color:var(--red);font-weight:800;}
 
 /* CLASS CHIPS */
 .chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--bg);border:1.5px solid var(--line);border-radius:8px;min-height:42px;}
@@ -194,14 +197,21 @@ tr:last-child td{border-bottom:none;}
         <input id="tKlup" placeholder="örn: Satranç Kulübü, Müzik Kulübü...">
       </div>
       <div class="fg">
-        <div class="fl">Olmayacağı Günler</div>
-        <div class="days" id="tDays">
-          <button class="day" data-d="Pazartesi" onclick="dayClick(this)">Pzt</button>
-          <button class="day" data-d="Salı" onclick="dayClick(this)">Sal</button>
-          <button class="day" data-d="Çarşamba" onclick="dayClick(this)">Çar</button>
-          <button class="day" data-d="Perşembe" onclick="dayClick(this)">Per</button>
-          <button class="day" data-d="Cuma" onclick="dayClick(this)">Cum</button>
+        <div class="fl">Müsait Olmadığı Saatler</div>
+        <div id="tBlockGrid" style="overflow-x:auto;">
+          <table style="border-collapse:collapse;font-size:11px;width:100%;">
+            <thead><tr>
+              <th style="padding:4px 6px;background:var(--bg);border:1px solid var(--line);font-weight:700;color:var(--ink3);font-size:10px;"></th>
+              <th style="padding:4px 6px;background:var(--bg);border:1px solid var(--line);font-weight:700;color:var(--ink3);font-size:10px;">Pzt</th>
+              <th style="padding:4px 6px;background:var(--bg);border:1px solid var(--line);font-weight:700;color:var(--ink3);font-size:10px;">Sal</th>
+              <th style="padding:4px 6px;background:var(--bg);border:1px solid var(--line);font-weight:700;color:var(--ink3);font-size:10px;">Çar</th>
+              <th style="padding:4px 6px;background:var(--bg);border:1px solid var(--line);font-weight:700;color:var(--ink3);font-size:10px;">Per</th>
+              <th style="padding:4px 6px;background:var(--bg);border:1px solid var(--line);font-weight:700;color:var(--ink3);font-size:10px;">Cum</th>
+            </tr></thead>
+            <tbody id="tBlockBody"></tbody>
+          </table>
         </div>
+        <div style="font-size:10px;color:var(--ink3);margin-top:4px;">Kırmızı hücreye tıklayarak müsait olmadığı saatleri işaretleyin.</div>
       </div>
       <button class="btn blue full" onclick="addTeacher()">+ Öğretmeni Kaydet</button>
     </div>
@@ -471,6 +481,39 @@ function renderCls() {
 // ─── TEACHER FORM ────────────────────────────
 function dayClick(btn) { btn.classList.toggle('off'); }
 
+function buildBlockGrid(blockedArr) {
+  var days = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma'];
+  var slotLabels = ['1.Ders','2.Ders','3.Ders','4.Ders','5.Ders','6.Ders','7.Ders'];
+  var slotIdxs = [0,1,2,3,5,6,7];
+  var body = document.getElementById('tBlockBody');
+  if (!body) return;
+  var blocked = blockedArr || [];
+  var rows = '';
+  slotIdxs.forEach(function(si, ri) {
+    rows += '<tr><td style="padding:4px 6px;background:var(--bg);border:1px solid var(--line);font-weight:700;color:var(--ink3);font-size:10px;white-space:nowrap;">' + slotLabels[ri] + '</td>';
+    days.forEach(function(d) {
+      var key = d + '-' + si;
+      var isOff = blocked.indexOf(key) >= 0;
+      rows += '<td class="bcell' + (isOff ? ' off' : '') + '" data-key="' + key + '" onclick="toggleBlock(this)">' + (isOff ? '✕' : '') + '</td>';
+    });
+    rows += '</tr>';
+  });
+  body.innerHTML = rows;
+}
+
+function toggleBlock(cell) {
+  cell.classList.toggle('off');
+  cell.textContent = cell.classList.contains('off') ? '✕' : '';
+}
+
+function getBlockedSlots() {
+  var result = [];
+  document.querySelectorAll('#tBlockBody .bcell.off').forEach(function(c) {
+    result.push(c.getAttribute('data-key'));
+  });
+  return result;
+}
+
 function addTDers() {
   var inp = document.getElementById('tDInp'); if (!inp) return;
   var v = (inp.value || '').trim(); if (!v) return;
@@ -498,8 +541,7 @@ function addTeacher() {
   var klub   = (document.getElementById('tKlup').value||'').trim();
   if (!name)   { toast('Ad Soyad girin', 'err'); return; }
   if (!branch) { toast('Branş girin', 'err'); return; }
-  var blocked = [];
-  document.querySelectorAll('#tDays .day.off').forEach(function(b){ blocked.push(b.getAttribute('data-d')); });
+  var blocked = getBlockedSlots();
   var t = {
     id: 't' + Date.now(),
     name: name,
@@ -518,7 +560,7 @@ function addTeacher() {
   document.getElementById('tN').value = '';
   document.getElementById('tB').value = '';
   document.getElementById('tKlup').value = '';
-  document.querySelectorAll('#tDays .day').forEach(function(b){ b.classList.remove('off'); });
+  buildBlockGrid([]);
   tempDers = []; renderTDersList();
   renderTeachers();
   fillSelects();   // ← fillSelects() artık tanımlı
@@ -549,7 +591,7 @@ function renderTeachers() {
   if (!DB.teachers.length) { el.innerHTML = ''; em.style.display = ''; return; }
   em.style.display = 'none';
   el.innerHTML = DB.teachers.map(function(t) {
-    var bd = (t.blocked && t.blocked.length) ? ' · <span style="color:var(--red);font-size:10px;">✕ ' + t.blocked.map(function(d){ return d.substring(0,3); }).join(', ') + '<\/span>' : '';
+    var bd = (t.blocked && t.blocked.length) ? ' · <span style="color:var(--red);font-size:10px;">✕ ' + t.blocked.length + ' saat engel<\/span>' : '';
     var ls = (t.lessons && t.lessons.length) ? '<br><span style="color:var(--blue);font-size:10px;">📚 ' + t.lessons.map(esc).join(', ') + '<\/span>' : '';
     var hrTag  = t.homeroom ? '<span class="hr-tag">' + esc(t.homeroom) + ' Sınıf Öğrt.<\/span>' : '';
     var klTag  = t.klub ? '<span class="klub-tag">🏫 ' + esc(t.klub) + '<\/span>' : '';
@@ -585,7 +627,7 @@ function onLT() {
   info.innerHTML = '<b>' + esc(t.name) + '<\/b> · ' + esc(t.branch) + (t.homeroom ? ' · <b style="color:var(--blue);">Sınıf Öğrt.<\/b>' : '');
   if (t.blocked && t.blocked.length) {
     warn.style.display = '';
-    warn.textContent = '🚫 ' + t.name + ' şu günlerde yok: ' + t.blocked.join(', ');
+    warn.textContent = '🚫 ' + t.name + ' ' + t.blocked.length + ' saat/slotta müsait değil.';
   } else { warn.style.display = 'none'; }
   var lSel = document.getElementById('lN');
   lSel.innerHTML = '<option value="">— Seçin —<\/option>';
@@ -696,9 +738,12 @@ function cleanSched() {
 function canPlace(entry, day, si) {
   // Slot dolu mu?
   if (DB.schedule[day][si] !== null) return false;
-  // Ogretmen o gun yok mu?
+  // Ogretmen o gun o saatte musait degil mi? (format: "Pazartesi-0")
   var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
-  if (t && t.blocked && t.blocked.indexOf(day) >= 0) return false;
+  if (t && t.blocked) {
+    var key = day + '-' + si;
+    if (t.blocked.indexOf(key) >= 0) return false;
+  }
   return true;
 }
 
@@ -742,8 +787,7 @@ function autoSchedule() {
 
   tasks.forEach(function(entry) {
     var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
-    var blocked = (t && t.blocked) ? t.blocked : [];
-    var avDays = DAYS.filter(function(d){ return blocked.indexOf(d) < 0; });
+    var avDays = DAYS.slice();
     var remaining = entry.hrs;
 
     // Pass 1: ikili bitisik bloklar koy
@@ -1021,6 +1065,7 @@ function dlPDF() {
 // ─── BOOT ────────────────────────────────────
 load();
 ensureGrid();
+buildBlockGrid([]);
 fillTHR();
 renderTeachers();
 renderLessons();
