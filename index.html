@@ -469,6 +469,11 @@ const LESSON_SLOTS = [0,1,2,3,5,6,7];
 const COLORS = ['#2563eb','#16a34a','#dc2626','#9333ea','#ea580c','#0891b2','#d97706','#4f46e5','#be185d','#065f46','#7c3aed','#b45309'];
 
 // ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ══════════════════════════════════════════════
 //  DATABASE (localStorage)
 // ══════════════════════════════════════════════
 const DB_KEY = 'dersProgramiDB_v1';
@@ -486,18 +491,26 @@ function loadDB() {
     const raw = localStorage.getItem(DB_KEY);
     if(raw) {
       const parsed = JSON.parse(raw);
-      DB = {...DB, ...parsed};
+      // Validate structure before merging
+      if(parsed && typeof parsed === 'object') {
+        if(Array.isArray(parsed.teachers)) DB.teachers = parsed.teachers;
+        if(Array.isArray(parsed.classes))  DB.classes  = parsed.classes;
+        if(Array.isArray(parsed.entries))  DB.entries  = parsed.entries;
+        if(parsed.school && typeof parsed.school==='object') DB.school = parsed.school;
+        if(parsed.schedule && typeof parsed.schedule==='object') DB.schedule = parsed.schedule;
+      }
     }
-  } catch(e) { console.warn('DB load error', e); }
+  } catch(e) {
+    console.warn('DB load error — resetting', e);
+    localStorage.removeItem(DB_KEY);
+  }
 }
 
 function saveDB() {
   try {
     localStorage.setItem(DB_KEY, JSON.stringify(DB));
     const ind = document.getElementById('saveIndicator');
-    ind.style.display = 'inline-flex';
-    clearTimeout(ind._t);
-    ind._t = setTimeout(()=>ind.style.display='none', 2500);
+    if(ind){ ind.style.display = 'inline-flex'; clearTimeout(ind._t); ind._t = setTimeout(()=>ind.style.display='none', 2500); }
   } catch(e) { console.warn('DB save error', e); }
 }
 
@@ -657,24 +670,25 @@ function renderTeacherList() {
     const hr = t.isHomeroom ? `<span class="badge badge-info" style="margin-left:4px;">Sınıf Öğrt.</span>` : '';
     const div = document.createElement('div');
     div.className='t-card';
+    const blockedHtml = (t.blockedDays&&t.blockedDays.length)
+      ? ' · <span style="color:var(--red);font-size:10px;">✕ '+t.blockedDays.map(d=>d.substring(0,3)).join(', ')+'</span>' : '';
     div.innerHTML=`
       <div class="t-av" style="background:${t.color}">${init}</div>
       <div class="t-info">
-        <div class="t-name">${t.name} ${hr}</div>
-        <div class="t-meta">${t.branch} ${blocked ? '· '+blocked.outerHTML||blocked : ''}</div>
+        <div class="t-name">${escHtml(t.name)} ${hr}</div>
+        <div class="t-meta">${escHtml(t.branch)}${blockedHtml}</div>
       </div>
       <div class="t-actions">
         <button class="btn btn-red btn-xs" onclick="removeTeacher('${t.id}')">Sil</button>
       </div>
     `;
-    // Fix blocked display in meta
-    div.querySelector('.t-meta').innerHTML = t.branch + (blocked ? ' · '+blocked : '');
     el.appendChild(div);
   });
 }
 
 function renderTeacherSelect() {
   const sel = document.getElementById('lTeacher');
+  if(!sel) return;
   const cur = sel.value;
   sel.innerHTML = '<option value="">— Öğretmen seçin —</option>';
   DB.teachers.forEach(t => {
@@ -816,10 +830,12 @@ function renderLessonList() {
 //  SCHEDULE GRID
 // ══════════════════════════════════════════════
 function initGrid() {
-  if(!DB.schedule || !Object.keys(DB.schedule).length) {
-    DB.schedule={};
-    DAYS.forEach(d=>{DB.schedule[d]={};LESSON_SLOTS.forEach(si=>DB.schedule[d][si]=null);});
-  }
+  if(!DB.schedule || typeof DB.schedule!=='object') DB.schedule={};
+  // Ensure all days/slots exist (safe to call multiple times)
+  DAYS.forEach(d=>{
+    if(!DB.schedule[d]||typeof DB.schedule[d]!=='object') DB.schedule[d]={};
+    LESSON_SLOTS.forEach(si=>{ if(!(si in DB.schedule[d])) DB.schedule[d][si]=null; });
+  });
 }
 
 function rebuildScheduleIndex() {
@@ -835,6 +851,7 @@ function rebuildScheduleIndex() {
 // ══════════════════════════════════════════════
 function autoSchedule() {
   if(!DB.entries.length){toast('Önce ders ataması ekleyin',true);return;}
+  try {
   initGrid();
   DAYS.forEach(d=>LESSON_SLOTS.forEach(si=>DB.schedule[d][si]=null));
 
@@ -892,6 +909,7 @@ function autoSchedule() {
   renderSchedule();
   goPage('pgSchedule');
   toast('Program oluşturuldu!', false, 'ok');
+  } catch(err) { console.error('autoSchedule error',err); toast('Hata: '+err.message, true); }
 }
 
 // Base placement check (no consecutive-block enforcement here — that is handled by the scheduler logic above)
@@ -961,8 +979,10 @@ function clearSchedule() {
 // ══════════════════════════════════════════════
 //  RENDER SCHEDULE
 // ══════════════════════════════════════════════
+function renderScheduleTable() { renderSchedule(); }
+
 function renderSchedule() {
-  updateSchedulePageState();
+  updateSchedulePageState(true);
   const tbl=document.getElementById('tbl');
   let h='<thead><tr><th>Sıra</th>';
   DAYS.forEach(d=>h+=`<th>${d}</th>`);
@@ -1001,11 +1021,11 @@ function renderSchedule() {
   checkConflicts();
 }
 
-function updateSchedulePageState() {
+function updateSchedulePageState(skipRender) {
   const hasSchedule=DAYS.some(d=>LESSON_SLOTS.some(si=>DB.schedule[d]&&DB.schedule[d][si]!==null));
   document.getElementById('scheduleEmpty').style.display=hasSchedule?'none':'flex';
   document.getElementById('scheduleArea').style.display=hasSchedule?'block':'none';
-  if(hasSchedule) renderSchedule();
+  if(hasSchedule&&!skipRender) renderScheduleTable();
 }
 
 function clearCell(day,si) {
