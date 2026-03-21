@@ -8,249 +8,190 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --bg:#f4f3f0;--w:#fff;--ink:#111;--ink2:#555;--ink3:#aaa;
-  --line:#e4e2dd;--blue:#2563eb;--bl:#eff4ff;
-  --green:#16a34a;--gl:#f0fdf4;
-  --red:#dc2626;--rl:#fef2f2;
-  --amber:#d97706;--al:#fffbeb;
-}
+:root{--bg:#f4f3f0;--w:#fff;--ink:#111;--ink2:#555;--ink3:#aaa;--line:#e4e2dd;--blue:#2563eb;--bl:#eff4ff;--green:#16a34a;--gl:#f0fdf4;--red:#dc2626;--rl:#fef2f2;--amber:#d97706;--al:#fffbeb;}
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;}
-
-/* NAV */
-.nav{height:50px;background:var(--w);border-bottom:2px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:6px;position:sticky;top:0;z-index:100;}
-.logo{display:flex;align-items:center;gap:8px;margin-right:auto;font-size:14px;font-weight:800;}
+.nav{height:50px;background:var(--w);border-bottom:2px solid var(--line);display:flex;align-items:center;padding:0 18px;gap:5px;position:sticky;top:0;z-index:100;overflow-x:auto;}
+.logo{display:flex;align-items:center;gap:8px;margin-right:10px;font-size:14px;font-weight:800;white-space:nowrap;flex-shrink:0;}
 .logo-box{width:28px;height:28px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;}
-.tab{padding:6px 14px;border-radius:7px;border:none;background:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--ink3);}
-.tab:hover{background:var(--bg);color:var(--ink);}
-.tab.on{background:var(--bl);color:var(--blue);}
-
-/* PAGES */
-.pg{display:none;padding:22px;max-width:1100px;margin:0 auto;}
-.pg.on{display:block;}
-.pg-title{font-size:18px;font-weight:800;margin-bottom:4px;}
-.pg-sub{font-size:12px;color:var(--ink3);margin-bottom:20px;}
-
-/* CARD */
+.tab{padding:6px 13px;border-radius:7px;border:none;background:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--ink3);white-space:nowrap;flex-shrink:0;}
+.tab:hover{background:var(--bg);color:var(--ink);}.tab.on{background:var(--bl);color:var(--blue);}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.sdot{display:none;align-items:center;gap:5px;font-size:11px;color:var(--ink3);}.sdot.on{display:flex;}.sdot span{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.pg{display:none;padding:22px;max-width:1140px;margin:0 auto;}.pg.on{display:block;}
+.pgh{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+.pgt{font-size:18px;font-weight:800;margin-bottom:3px;}.pgs{font-size:12px;color:var(--ink3);}
 .card{background:var(--w);border:1.5px solid var(--line);border-radius:10px;padding:18px;}
-
-/* FORM */
+.g2{display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start;}
+@media(max-width:800px){.g2{grid-template-columns:1fr;}}
 .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
 .fl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3);}
 input,select{width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;color:var(--ink);background:var(--bg);outline:none;}
-input:focus,select:focus{border-color:var(--blue);background:var(--w);}
-input::placeholder{color:var(--ink3);}
-
-/* BUTTONS */
-.btn{padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:5px;}
-.btn:active{opacity:.85;}
-.blue{background:var(--blue);color:#fff;}
-.ghost{background:var(--bg);color:var(--ink2);border:1.5px solid var(--line);}
-.green{background:var(--green);color:#fff;}
-.danger{background:var(--rl);color:var(--red);border:1.5px solid #fecaca;}
-.sm{padding:6px 11px;font-size:12px;}
-.xs{padding:4px 8px;font-size:11px;border-radius:6px;}
-.full{width:100%;justify-content:center;padding:12px;}
-
-/* COUNTER */
+input:focus,select:focus{border-color:var(--blue);background:var(--w);}input::placeholder{color:var(--ink3);}
+.btn{padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:5px;}.btn:active{opacity:.8;}
+.blue{background:var(--blue);color:#fff;}.ghost{background:var(--bg);color:var(--ink2);border:1.5px solid var(--line);}
+.green{background:var(--green);color:#fff;}.danger{background:var(--rl);color:var(--red);border:1.5px solid #fecaca;}
+.sm{padding:6px 11px;font-size:12px;}.xs{padding:4px 8px;font-size:11px;border-radius:6px;}.full{width:100%;justify-content:center;padding:12px;}
 .ctr{display:flex;align-items:center;gap:8px;}
-.cb{width:30px;height:30px;border-radius:7px;border:1.5px solid var(--line);background:var(--w);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;}
-.cb:hover{border-color:var(--blue);color:var(--blue);}
-.cv{font-size:17px;font-weight:800;min-width:26px;text-align:center;}
-
-/* DAY BUTTONS */
+.cb{width:30px;height:30px;border-radius:7px;border:1.5px solid var(--line);background:var(--w);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.cb:hover{border-color:var(--blue);color:var(--blue);}.cv{font-size:17px;font-weight:800;min-width:26px;text-align:center;}
 .days{display:flex;gap:5px;flex-wrap:wrap;}
 .day{padding:6px 10px;border-radius:7px;border:1.5px solid var(--line);background:var(--w);cursor:pointer;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--ink3);}
 .day.off{background:var(--rl);border-color:#fecaca;color:var(--red);text-decoration:line-through;}
-
-/* CLASS CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--bg);border:1.5px solid var(--line);border-radius:8px;min-height:42px;}
-.chip{padding:6px 12px;border-radius:7px;border:1.5px solid var(--line);background:var(--w);cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--ink3);user-select:none;}
-.chip:hover{border-color:var(--blue);color:var(--blue);}
-.chip.on{background:var(--blue);border-color:var(--blue);color:#fff;}
-
-/* TEACHER LIST */
-.tcard{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--bg);border:1.5px solid var(--line);border-radius:9px;margin-bottom:7px;}
-.tav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
-.tinfo{flex:1;min-width:0;}
-.tname{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tmeta{font-size:10px;color:var(--ink3);margin-top:2px;}
-
-/* ENTRY LIST */
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:9px;background:var(--bg);border:1.5px solid var(--line);border-radius:8px;min-height:40px;}
+.chip{padding:5px 11px;border-radius:7px;border:1.5px solid var(--line);background:var(--w);cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--ink3);user-select:none;}
+.chip:hover{border-color:var(--blue);color:var(--blue);}.chip.on{background:var(--blue);border-color:var(--blue);color:#fff;}.chip.hr{border-color:#86efac;color:var(--green);}
+.tcard{display:flex;align-items:flex-start;gap:10px;padding:12px 13px;background:var(--bg);border:1.5px solid var(--line);border-radius:9px;margin-bottom:7px;}
+.tav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;}
+.tinfo{flex:1;min-width:0;}.tname{font-size:13px;font-weight:700;}.tmeta{font-size:11px;color:var(--ink3);margin-top:3px;line-height:1.7;}
 .ecard{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bg);border:1px solid var(--line);border-radius:8px;margin-bottom:6px;}
 .edot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-
-/* SCHEDULE */
 .tbl-wrap{background:var(--w);border:1.5px solid var(--line);border-radius:10px;overflow:auto;}
-table{width:100%;border-collapse:collapse;min-width:580px;}
+table{width:100%;border-collapse:collapse;min-width:560px;}
 th{background:var(--bg);padding:10px 7px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink3);text-align:center;border-bottom:1.5px solid var(--line);}
 th:first-child{text-align:left;padding-left:12px;width:72px;}
 td{padding:4px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);}
 td:first-child{padding:0;background:var(--bg);border-right:2px solid var(--line);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
-.rh{padding:9px 10px;text-align:center;}
-.rn{font-size:14px;font-weight:800;}
-.rl{font-size:9px;color:var(--ink3);margin-top:1px;}
+.rh{padding:9px 10px;text-align:center;}.rn{font-size:14px;font-weight:800;}.rl2{font-size:9px;color:var(--ink3);margin-top:1px;}
 .cell{min-height:62px;border-radius:7px;border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;}
 .cell:hover{border-color:var(--blue);border-style:solid;background:var(--bl);}
 .cell.has{border-style:solid;align-items:flex-start;padding:7px 8px;flex-direction:column;gap:1px;}
-.cp{color:var(--ink3);font-size:18px;opacity:.3;}
-.cell:hover .cp{opacity:.6;color:var(--blue);}
-.cl{font-size:11px;font-weight:700;line-height:1.2;}
-.cc{font-size:10px;font-weight:600;margin-top:1px;}
-.ct{font-size:9px;color:var(--ink3);}
+.cp{color:var(--ink3);font-size:18px;opacity:.3;}.cell:hover .cp{opacity:.6;color:var(--blue);}
+.cl{font-size:11px;font-weight:700;line-height:1.2;}.cc{font-size:10px;font-weight:600;margin-top:1px;}.ct{font-size:9px;color:var(--ink3);}
 .cdel{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:4px;background:rgba(220,38,38,.1);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;color:var(--red);font-size:10px;padding:0;}
 .cell.has:hover .cdel{display:flex;}
-.lrow td{background:var(--al)!important;}
-.lrow td:first-child{background:var(--bg)!important;}
-.lunch{display:flex;align-items:center;justify-content:center;height:32px;color:var(--amber);font-size:11px;font-weight:700;}
-
-/* STATS */
+.lrow td{background:var(--al)!important;}.lrow td:first-child{background:var(--bg)!important;}
+.lunchdiv{display:flex;align-items:center;justify-content:center;height:32px;color:var(--amber);font-size:11px;font-weight:700;}
+.fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.vtabs{display:flex;gap:4px;background:var(--bg);border:1.5px solid var(--line);border-radius:9px;padding:4px;}
+.vtab{padding:6px 14px;border-radius:6px;border:none;background:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--ink3);}
+.vtab.on{background:var(--w);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08);}
 .stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .stat{background:var(--w);border:1px solid var(--line);border-radius:8px;padding:10px 14px;flex:1;min-width:100px;}
-.sn{font-size:20px;font-weight:800;color:var(--blue);}
-.sl{font-size:10px;color:var(--ink3);font-weight:600;text-transform:uppercase;margin-top:1px;}
-
-/* MODAL */
+.sn{font-size:20px;font-weight:800;color:var(--blue);}.sl{font-size:10px;color:var(--ink3);font-weight:600;text-transform:uppercase;margin-top:1px;}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .ov.on{display:flex;}
 .modal{background:var(--w);border-radius:14px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:pop .2s ease;}
-@keyframes pop{from{opacity:0;transform:scale(.95)translateY(8px);}to{opacity:1;transform:none;}}
+@keyframes pop{from{opacity:0;transform:scale(.95) translateY(8px);}to{opacity:1;transform:none;}}
 .mh{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;}
-.mt{font-size:14px;font-weight:800;}
-.ms{font-size:11px;color:var(--ink3);margin-top:2px;}
+.mt{font-size:14px;font-weight:800;}.ms{font-size:11px;color:var(--ink3);margin-top:2px;}
 .mx{background:var(--bg);border:1px solid var(--line);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:13px;color:var(--ink3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.mb{padding:16px 20px;display:flex;flex-direction:column;gap:12px;}
-.mf{padding:0 20px 16px;display:flex;gap:8px;justify-content:flex-end;}
-
-/* EMPTY */
-.empty{text-align:center;padding:50px 20px;color:var(--ink3);}
-.ei{font-size:40px;opacity:.3;margin-bottom:10px;}
-.eh{font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:6px;}
-.ep{font-size:12px;line-height:1.7;}
-
-/* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%)translateY(8px);background:var(--ink);color:#fff;padding:8px 16px;border-radius:100px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;}
-.toast.on{opacity:1;transform:translateX(-50%)translateY(0);}
-.toast.err{background:var(--red);}
-.toast.ok{background:var(--green);}
-
-/* SAVE DOT */
-.sdot{display:none;align-items:center;gap:5px;font-size:11px;color:var(--ink3);}
-.sdot.on{display:flex;}
-.sdot span{width:6px;height:6px;border-radius:50%;background:var(--green);}
-
-/* GRID HELPERS */
-.g2{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;}
-@media(max-width:750px){.g2{grid-template-columns:1fr;}}
-
-/* HOMEROOM TOGGLE */
-.hrtog{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--line);border-radius:8px;cursor:pointer;margin-bottom:10px;}
-.hrbox{width:18px;height:18px;border-radius:5px;border:2px solid var(--line);background:var(--w);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .15s;}
-.hrbox.on{background:var(--green);border-color:var(--green);color:#fff;}
+.mb{padding:16px 20px;display:flex;flex-direction:column;gap:12px;}.mf{padding:0 20px 16px;display:flex;gap:8px;justify-content:flex-end;}
+.empty{text-align:center;padding:48px 20px;color:var(--ink3);}
+.ei{font-size:40px;opacity:.3;margin-bottom:10px;}.eh{font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:6px;}.ep{font-size:12px;line-height:1.7;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink);color:#fff;padding:8px 16px;border-radius:100px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}.toast.err{background:var(--red);}.toast.ok{background:var(--green);}
+.hr-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--gl);color:var(--green);font-weight:700;display:inline-block;margin-left:5px;vertical-align:middle;}
+.dtag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--bl);border:1px solid #bfdbfe;border-radius:5px;font-size:11px;font-weight:600;color:var(--blue);margin:2px;}
 </style>
 </head>
 <body>
-
 <div class="nav">
-  <div class="logo"><div class="logo-box">📚</div>Ders Programı</div>
-  <button class="tab on" onclick="nav('p1',this)">Öğretmenler</button>
-  <button class="tab" onclick="nav('p2',this)">Ders Atamaları</button>
-  <button class="tab" onclick="nav('p3',this)">Program</button>
-  <button class="tab" onclick="nav('p4',this)">Ayarlar</button>
-  <div class="sdot" id="sdot"><span></span>Kaydedildi</div>
-  <button class="btn green sm" style="margin-left:6px;" onclick="dlPDF()">⬇ PDF</button>
+  <div class="logo"><div class="logo-box">&#128218;</div>Ders Program&#305;</div>
+  <button class="tab on"  onclick="goNav('p1',0)">&#128104;&#8205;&#127979; &#214;&#287;retmenler</button>
+  <button class="tab"     onclick="goNav('p2',1)">&#128214; Ders Atamalar&#305;</button>
+  <button class="tab"     onclick="goNav('p3',2)">&#128197; Program</button>
+  <button class="tab"     onclick="goNav('p4',3)">&#9881;&#65039; Ayarlar</button>
+  <div class="nav-r">
+    <div class="sdot" id="sdot"><span></span>Kaydedildi</div>
+    <button class="btn green sm" onclick="dlPDF()">&#11015; PDF</button>
+  </div>
 </div>
 
-<!-- PAGE 1: ÖĞRETMENLER -->
+<!-- PAGE 1 -->
 <div class="pg on" id="p1">
-  <div class="pg-title">👩‍🏫 Öğretmenler</div>
-  <div class="pg-sub">Öğretmen ekleyin. Bilgiler tarayıcınıza kaydedilir.</div>
+  <div class="pgh"><div><div class="pgt">&#128104;&#8205;&#127979; &#214;&#287;retmenler</div><div class="pgs">Bran&#351;, verecek dersler (bran&#351;tan ayr&#305;), s&#305;n&#305;f &#246;&#287;retmenli&#287;i ve m&#252;saitlik bilgilerini kaydedin.</div></div></div>
   <div class="g2">
     <div class="card">
-      <div class="fg"><div class="fl">Ad Soyad</div><input id="tN" placeholder="Ahmet Yılmaz"></div>
-      <div class="fg"><div class="fl">Branş</div><input id="tB" placeholder="Matematik"></div>
-      <div class="hrtog" id="hrTog" onclick="hrClick()">
-        <div class="hrbox" id="hrBox"></div>
-        <div><div style="font-size:12px;font-weight:700;">Sınıf Öğretmeni</div><div style="font-size:10px;color:var(--ink3);">Birden fazla sınıfa ders verebilir</div></div>
+      <div class="fg"><div class="fl">Ad Soyad</div><input id="tN" placeholder="Ahmet Y&#305;lmaz"></div>
+      <div class="fg"><div class="fl">Bran&#351; / Unvan</div><input id="tBr" placeholder="&#246;rn: Matematik &#214;&#287;retmeni"></div>
+      <div class="fg">
+        <div class="fl">Verecek Dersler (bran&#351;tan farkl&#305; olabilir)</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px;"><input id="tDInp" placeholder="Ders ad&#305; yaz&#305;p + bas&#305;n..." onkeydown="if(event.key==='Enter')addTD()"><button class="btn blue sm" onclick="addTD()">+</button></div>
+        <div id="tDList" style="display:flex;flex-wrap:wrap;gap:4px;min-height:26px;"></div>
+        <div style="font-size:10px;color:var(--ink3);margin-top:3px;">Bran&#351; ad&#305; otomatik olarak ders listesine eklenir. Farkl&#305; dersler i&#231;in yukar&#305;dan ekleyin.</div>
       </div>
       <div class="fg">
-        <div class="fl">Olmayacağı Günler</div>
+        <div class="fl">S&#305;n&#305;f &#214;&#287;retmenli&#287;i</div>
+        <select id="tHR"><option value="">&#8212; S&#305;n&#305;f &#246;&#287;retmeni de&#287;il &#8212;</option></select>
+        <div style="font-size:10px;color:var(--ink3);margin-top:3px;">Se&#231;ilirse o s&#305;n&#305;f&#305;n program&#305;nda hoca ad&#305; g&#246;r&#252;n&#252;r; t&#252;m dersleri verebilir.</div>
+      </div>
+      <div class="fg">
+        <div class="fl">Olmayaca&#287;&#305; G&#252;nler</div>
         <div class="days" id="tDays">
-          <button class="day" data-d="Pazartesi" onclick="dayClick(this)">Pzt</button>
-          <button class="day" data-d="Salı" onclick="dayClick(this)">Sal</button>
-          <button class="day" data-d="Çarşamba" onclick="dayClick(this)">Çar</button>
-          <button class="day" data-d="Perşembe" onclick="dayClick(this)">Per</button>
-          <button class="day" data-d="Cuma" onclick="dayClick(this)">Cum</button>
+          <button class="day" data-d="Pazartesi" onclick="this.classList.toggle('off')">Pzt</button>
+          <button class="day" data-d="Sal&#305;" onclick="this.classList.toggle('off')">Sal</button>
+          <button class="day" data-d="&#199;ar&#351;amba" onclick="this.classList.toggle('off')">&#199;ar</button>
+          <button class="day" data-d="Per&#351;embe" onclick="this.classList.toggle('off')">Per</button>
+          <button class="day" data-d="Cuma" onclick="this.classList.toggle('off')">Cum</button>
         </div>
       </div>
-      <button class="btn blue full" onclick="addTeacher()">+ Öğretmeni Kaydet</button>
+      <button class="btn blue full" onclick="addTeacher()">+ &#214;&#287;retmeni Kaydet</button>
     </div>
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <b style="font-size:13px;">Öğretmenler <span id="tCnt" style="color:var(--ink3);font-weight:400;"></span></b>
-        <button class="btn ghost sm" onclick="clearTeachers()">Temizle</button>
+        <b style="font-size:13px;">&#214;&#287;retmenler <span id="tCnt" style="color:var(--ink3);font-weight:400;"></span></b>
+        <button class="btn danger xs" onclick="if(confirm('T&#252;m&#252; silinsin mi?')){DB.teachers=[];DB.entries=[];cleanSched();save();boot();}">Temizle</button>
       </div>
       <div id="tList"></div>
-      <div id="tEmpty" class="empty"><div class="ei">👩‍🏫</div><div class="eh">Henüz öğretmen yok</div><div class="ep">Sol formu doldurun.</div></div>
+      <div id="tEmpty" class="empty"><div class="ei">&#128104;&#8205;&#127979;</div><div class="eh">Hen&#252;z &#246;&#287;retmen yok</div><div class="ep">Formu doldurup kaydedin.</div></div>
     </div>
   </div>
 </div>
 
-<!-- PAGE 2: DERS ATAMALARI -->
+<!-- PAGE 2 -->
 <div class="pg" id="p2">
-  <div class="pg-title">📖 Ders Atamaları</div>
-  <div class="pg-sub">Öğretmen seçin, sınıf ve haftalık saat atayın.</div>
+  <div class="pgh"><div><div class="pgt">&#128214; Ders Atamalar&#305;</div><div class="pgs">&#214;&#287;retmen se&#231;in, hangi dersi hangi s&#305;n&#305;fa ka&#231; saat verece&#287;ini belirleyin.</div></div></div>
   <div class="g2">
     <div class="card">
+      <div class="fg"><div class="fl">&#214;&#287;retmen</div><select id="lT" onchange="onLT()"><option value="">&#8212; Se&#231;in &#8212;</option></select></div>
+      <div id="lTInfo" style="display:none;padding:8px 11px;background:var(--bl);border:1px solid #bfdbfe;border-radius:7px;font-size:12px;margin-bottom:10px;"></div>
+      <div class="fg"><div class="fl">Ders</div><select id="lD"><option value="">&#8212; &#214;nce &#246;&#287;retmen se&#231;in &#8212;</option></select></div>
       <div class="fg">
-        <div class="fl">Öğretmen</div>
-        <select id="lT" onchange="onLT()"><option value="">— Seçin —</option></select>
-      </div>
-      <div id="lInfo" style="display:none;padding:8px 11px;background:var(--bl);border:1px solid #bfdbfe;border-radius:7px;font-size:12px;margin-bottom:10px;"></div>
-      <div class="fg"><div class="fl">Ders Adı</div><input id="lN" placeholder="Matematik"></div>
-      <div class="fg">
-        <div class="fl">Sınıf(lar)</div>
-        <div class="chips" id="lChips"><span style="font-size:12px;color:var(--ink3);">Önce Ayarlar'dan sınıf ekleyin</span></div>
+        <div class="fl">S&#305;n&#305;f(lar) &#8212; birden fazla se&#231;ebilirsiniz</div>
+        <div class="chips" id="lChips"><span style="font-size:12px;color:var(--ink3);">&#214;nce &#246;&#287;retmen se&#231;in</span></div>
       </div>
       <div class="fg" style="margin-top:4px;">
-        <div class="fl">Haftalık Saat</div>
-        <div class="ctr">
-          <button class="cb" onclick="chHrs(-1)">−</button>
-          <div class="cv" id="hrsV">2</div>
-          <button class="cb" onclick="chHrs(1)">+</button>
-          <span style="font-size:11px;color:var(--ink3);">saat/hafta</span>
-        </div>
+        <div class="fl">Haftal&#305;k Saat</div>
+        <div class="ctr"><button class="cb" onclick="chHrs(-1)">&#8722;</button><div class="cv" id="hrsV">2</div><button class="cb" onclick="chHrs(1)">+</button><span style="font-size:11px;color:var(--ink3);">saat/hafta</span></div>
       </div>
-      <div id="lWarn" style="display:none;font-size:11px;color:var(--red);padding:7px 10px;background:var(--rl);border-radius:7px;margin-bottom:6px;border:1px solid #fecaca;"></div>
-      <button class="btn blue full" onclick="addLesson()" style="margin-top:6px;">+ Ders Atamasını Kaydet</button>
+      <div id="lWarn" style="display:none;font-size:11px;color:var(--red);padding:7px 10px;background:var(--rl);border-radius:7px;border:1px solid #fecaca;margin-top:6px;"></div>
+      <button class="btn blue full" onclick="addLesson()" style="margin-top:10px;">+ Ders Atamas&#305;n&#305; Kaydet</button>
     </div>
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <b style="font-size:13px;">Atamalar <span id="lCnt" style="color:var(--ink3);font-weight:400;"></span></b>
-        <button class="btn ghost sm" onclick="clearLessons()">Temizle</button>
+        <button class="btn danger xs" onclick="if(confirm('T&#252;m atamalar silinsin mi?')){DB.entries=[];cleanSched();save();renderLessons();}">Temizle</button>
       </div>
       <div id="lList"></div>
-      <div id="lEmpty" class="empty"><div class="ei">📖</div><div class="eh">Henüz atama yok</div><div class="ep">Sol formu doldurun.</div></div>
+      <div id="lEmpty" class="empty"><div class="ei">&#128214;</div><div class="eh">Hen&#252;z atama yok</div></div>
     </div>
   </div>
 </div>
 
-<!-- PAGE 3: PROGRAM -->
+<!-- PAGE 3 -->
 <div class="pg" id="p3">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
-    <div><div class="pg-title">🗓 Program Tablosu</div><div class="pg-sub" style="margin:0;">Hücreye tıklayarak düzenleyin.</div></div>
+  <div class="pgh">
+    <div><div class="pgt">&#128197; Program Tablosu</div><div class="pgs">S&#305;n&#305;f veya &#246;&#287;retmen program&#305;n&#305; g&#246;r&#252;nt&#252;leyin. H&#252;creye t&#305;klayarak d&#252;zenleyin.</div></div>
     <div style="display:flex;gap:7px;flex-wrap:wrap;">
-      <button class="btn ghost sm" onclick="autoSchedule()">🔄 Yeniden Oluştur</button>
-      <button class="btn ghost sm" onclick="clearSched()">🗑 Temizle</button>
-      <button class="btn green sm" onclick="dlPDF()">⬇ PDF</button>
+      <button class="btn ghost sm" onclick="autoSchedule()">&#128260; Yeniden Olu&#351;tur</button>
+      <button class="btn ghost sm" onclick="clearSched()">&#128465; Temizle</button>
+      <button class="btn green sm" onclick="dlPDF()">&#11015; PDF</button>
     </div>
+  </div>
+  <div class="fbar">
+    <div class="vtabs">
+      <button class="vtab on" id="vtC" onclick="setView('cls',this)">&#128203; S&#305;n&#305;f Program&#305;</button>
+      <button class="vtab"    id="vtT" onclick="setView('tch',this)">&#128100; &#214;&#287;retmen Program&#305;</button>
+    </div>
+    <select id="fSel" onchange="drawTable()" style="width:auto;min-width:170px;"></select>
+    <span id="fInfo" style="font-size:11px;color:var(--ink3);"></span>
   </div>
   <div class="stats" id="stats"></div>
   <div id="sEmpty" class="empty" style="background:var(--w);border:1.5px solid var(--line);border-radius:10px;">
-    <div class="ei">🗓</div><div class="eh">Program henüz oluşturulmadı</div>
-    <div class="ep">Ders atamalarını yaptıktan sonra aşağıdaki butona basın.</div>
-    <button class="btn blue sm" style="margin-top:10px;" onclick="autoSchedule()">✦ Otomatik Oluştur</button>
+    <div class="ei">&#128197;</div><div class="eh">Program hen&#252;z olu&#351;turulmad&#305;</div>
+    <div class="ep">Ders atamalar&#305;n&#305; yap&#305;n, ard&#305;ndan olu&#351;turun.</div>
+    <button class="btn blue sm" style="margin-top:10px;" onclick="autoSchedule()">&#10022; Otomatik Olu&#351;tur</button>
   </div>
   <div id="sArea" style="display:none;">
     <div class="tbl-wrap"><table id="tbl"></table></div>
@@ -258,24 +199,21 @@ tr:last-child td{border-bottom:none;}
   </div>
 </div>
 
-<!-- PAGE 4: AYARLAR -->
+<!-- PAGE 4 -->
 <div class="pg" id="p4">
-  <div class="pg-title">⚙️ Ayarlar</div>
-  <div class="pg-sub">Okul bilgileri ve sınıf listesi.</div>
+  <div class="pgh"><div><div class="pgt">&#9881;&#65039; Ayarlar</div><div class="pgs">Okul bilgileri ve s&#305;n&#305;f listesi.</div></div></div>
   <div class="g2">
     <div class="card">
-      <div class="fg"><div class="fl">Okul Adı</div><input id="sN" placeholder="Okul adı" oninput="saveSch()"></div>
-      <div class="fg"><div class="fl">Eğitim Yılı</div><input id="sY" value="2025-2026" oninput="saveSch()"></div>
-      <div class="fg"><div class="fl">Dönem</div>
-        <select id="sS" onchange="saveSch()"><option>1. Dönem</option><option>2. Dönem</option></select>
+      <div class="fg"><div class="fl">Okul Ad&#305;</div><input id="sN" placeholder="Okul ad&#305;" oninput="saveSch()"></div>
+      <div class="fg"><div class="fl">E&#287;itim Y&#305;l&#305;</div><input id="sY" value="2025-2026" oninput="saveSch()"></div>
+      <div class="fg"><div class="fl">D&#246;nem</div><select id="sS" onchange="saveSch()"><option>1. D&#246;nem</option><option>2. D&#246;nem</option></select></div>
+      <div style="margin-top:8px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--ink2);line-height:1.9;">
+        &#128197; <b>Pzt&#8211;Cum</b> &nbsp;|&nbsp; &#128336; <b>7 ders/g&#252;n</b> &nbsp;|&nbsp; &#9749; <b>4&#8211;5. aras&#305; &#246;&#287;le</b>
       </div>
     </div>
     <div class="card">
-      <b style="font-size:13px;display:block;margin-bottom:10px;">Sınıflar</b>
-      <div style="display:flex;gap:7px;margin-bottom:10px;">
-        <input id="nC" placeholder="örn: 5-A" onkeydown="if(event.key==='Enter')addCls()">
-        <button class="btn blue sm" onclick="addCls()">+ Ekle</button>
-      </div>
+      <b style="font-size:13px;display:block;margin-bottom:10px;">&#127991; S&#305;n&#305;flar</b>
+      <div style="display:flex;gap:7px;margin-bottom:10px;"><input id="nC" placeholder="&#246;rn: 5-A" onkeydown="if(event.key==='Enter')addCls()"><button class="btn blue sm" onclick="addCls()">+ Ekle</button></div>
       <div id="cList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
     </div>
   </div>
@@ -284,679 +222,515 @@ tr:last-child td{border-bottom:none;}
 <!-- MODAL -->
 <div class="ov" id="ov" onclick="if(event.target===this)closeM()">
   <div class="modal">
-    <div class="mh">
-      <div><div class="mt">Hücreyi Düzenle</div><div class="ms" id="mSub"></div></div>
-      <button class="mx" onclick="closeM()">✕</button>
-    </div>
+    <div class="mh"><div><div class="mt">H&#252;creyi D&#252;zenle</div><div class="ms" id="mSub"></div></div><button class="mx" onclick="closeM()">&#10005;</button></div>
     <div class="mb">
-      <div class="fg" style="margin:0;">
-        <div class="fl">Ders / Öğretmen</div>
-        <select id="mSel" onchange="mChk()"><option value="">— Boş —</option></select>
-      </div>
+      <div class="fg" style="margin:0;"><div class="fl">Ders / &#214;&#287;retmen</div><select id="mSel" onchange="mChk()"><option value="">&#8212; Bo&#351; &#8212;</option></select></div>
       <div id="mConf" style="display:none;font-size:11px;padding:6px 9px;border-radius:6px;"></div>
     </div>
-    <div class="mf">
-      <button class="btn ghost sm" onclick="closeM()">İptal</button>
-      <button class="btn blue sm" onclick="saveCell()">Kaydet</button>
-    </div>
+    <div class="mf"><button class="btn ghost sm" onclick="closeM()">&#304;ptal</button><button class="btn blue sm" onclick="saveCell()">Kaydet</button></div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── CONSTANTS ───────────────────────────────
-var DAYS = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma'];
-var SLOTS = [
-  {l:'1. Ders',t:'l'},{l:'2. Ders',t:'l'},{l:'3. Ders',t:'l'},{l:'4. Ders',t:'l'},
-  {l:'Öğle',t:'b'},
-  {l:'5. Ders',t:'l'},{l:'6. Ders',t:'l'},{l:'7. Ders',t:'l'}
+var DAYS=['Pazartesi','Sal\u0131','\u00c7ar\u015famba','Per\u015fembe','Cuma'];
+var SLOTS=[{
+  l:'1. Ders',t:'l'
+}
+,{
+  l:'2. Ders',t:'l'
+}
+,{
+  l:'3. Ders',t:'l'
+}
+,{
+  l:'4. Ders',t:'l'
+}
+,{
+  l:'\u00d6\u011fle',t:'b'
+}
+,{
+  l:'5. Ders',t:'l'
+}
+,{
+  l:'6. Ders',t:'l'
+}
+,{
+  l:'7. Ders',t:'l'
+}
 ];
-var LS = [0,1,2,3,5,6,7]; // lesson slot indices
-var COLORS = ['#2563eb','#16a34a','#dc2626','#9333ea','#ea580c','#0891b2','#d97706','#4f46e5','#be185d','#065f46'];
-var KEY = 'dp2025v1';
-
-// ─── STATE ───────────────────────────────────
-var DB = {teachers:[], classes:[], entries:[], schedule:{}, school:{name:'',year:'2025-2026',sem:'1. Dönem'}};
-var hrs = 2;
-var selCls = [];
-var mDay = null, mSi = null;
-var hrOn = false;
-
-// ─── LOAD / SAVE ─────────────────────────────
-function load() {
-  try {
-    var r = localStorage.getItem(KEY);
-    if (!r) return;
-    var p = JSON.parse(r);
-    if (p && typeof p === 'object') {
-      if (Array.isArray(p.teachers)) DB.teachers = p.teachers;
-      if (Array.isArray(p.classes))  DB.classes  = p.classes;
-      if (Array.isArray(p.entries))  DB.entries  = p.entries;
-      if (p.schedule && typeof p.schedule === 'object') DB.schedule = p.schedule;
-      if (p.school   && typeof p.school   === 'object') DB.school   = p.school;
-    }
-  } catch(e) {
+var LS=[0,1,2,3,5,6,7];
+var COLORS=['#2563eb','#16a34a','#dc2626','#9333ea','#ea580c','#0891b2','#d97706','#4f46e5','#be185d','#065f46','#7c3aed','#b45309'];
+var KEY='dp2025v3';
+var DB={
+  teachers:[],classes:[],entries:[],schedule:{
+  }
+  ,school:{
+    name:'',year:'2025-2026',sem:'1. D\u00f6nem'
+  }
+}
+;
+var hrs=2,selCls=[],tempDers=[],curView='cls',mDay=null,mSi=null;
+function load(){
+  try{
+    var r=localStorage.getItem(KEY);
+    if(!r)return;
+    var p=JSON.parse(r);
+    if(!p||typeof p!=='object')return;
+    if(Array.isArray(p.teachers))DB.teachers=p.teachers;
+    if(Array.isArray(p.classes))DB.classes=p.classes;
+    if(Array.isArray(p.entries))DB.entries=p.entries;
+    if(p.schedule&&typeof p.schedule==='object')DB.schedule=p.schedule;
+    if(p.school&&typeof p.school==='object')DB.school=p.school;
+  }
+  catch(e){
     localStorage.removeItem(KEY);
   }
 }
-
-function save() {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(DB));
-    var d = document.getElementById('sdot');
-    d.className = 'sdot on';
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(DB));
+    var d=document.getElementById('sdot');
+    d.className='sdot on';
     clearTimeout(d._t);
-    d._t = setTimeout(function(){ d.className = 'sdot'; }, 2000);
-  } catch(e) {}
-}
-
-function ensureGrid() {
-  if (!DB.schedule || typeof DB.schedule !== 'object') DB.schedule = {};
-  DAYS.forEach(function(d) {
-    if (!DB.schedule[d] || typeof DB.schedule[d] !== 'object') DB.schedule[d] = {};
-    LS.forEach(function(si) { if (DB.schedule[d][si] === undefined) DB.schedule[d][si] = null; });
-  });
-}
-
-// ─── NAVIGATION ──────────────────────────────
-function nav(id, btn) {
-  ['p1','p2','p3','p4'].forEach(function(p){ document.getElementById(p).className='pg'; });
-  document.getElementById(id).className = 'pg on';
-  document.querySelectorAll('.tab').forEach(function(t){ t.className='tab'; });
-  btn.className = 'tab on';
-  if (id === 'p2') { fillTSelect(); fillChips(); }
-  if (id === 'p3') { refreshSched(); }
-}
-
-// ─── HELPERS ─────────────────────────────────
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function toast(msg, type) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast on' + (type ? ' '+type : '');
-  clearTimeout(t._t);
-  t._t = setTimeout(function(){ t.className = 'toast'; }, 2600);
-}
-function color(i) { return COLORS[i % COLORS.length]; }
-function initials(name) {
-  return String(name||'').split(' ').map(function(w){ return w[0]||''; }).slice(0,2).join('').toUpperCase();
-}
-
-// ─── SCHOOL SETTINGS ─────────────────────────
-function saveSch() {
-  DB.school = {
-    name: document.getElementById('sN').value,
-    year: document.getElementById('sY').value,
-    sem:  document.getElementById('sS').value
-  };
-  save();
-}
-function loadSch() {
-  document.getElementById('sN').value = DB.school.name || '';
-  document.getElementById('sY').value = DB.school.year || '2025-2026';
-  // set select value safely
-  var sel = document.getElementById('sS');
-  for (var i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].text === DB.school.sem) { sel.selectedIndex = i; break; }
+    d._t=setTimeout(function(){
+      d.className='sdot';
+    }
+    ,2000);
+  }
+  catch(e){
   }
 }
-
-// ─── CLASSES ─────────────────────────────────
-function addCls() {
-  var v = (document.getElementById('nC').value||'').trim();
-  if (!v) return;
-  if (DB.classes.indexOf(v) >= 0) { toast('Bu sınıf zaten var', 'err'); return; }
-  DB.classes.push(v);
-  document.getElementById('nC').value = '';
-  save();
-  renderCls();
-  fillChips();
-}
-function remCls(i) {
-  DB.classes.splice(i, 1);
-  save();
-  renderCls();
-  fillChips();
-}
-function renderCls() {
-  var el = document.getElementById('cList');
-  if (!el) return;
-  if (!DB.classes.length) { el.innerHTML = '<span style="font-size:12px;color:var(--ink3);">Henüz sınıf yok</span>'; return; }
-  el.innerHTML = DB.classes.map(function(c, i) {
-    return '<div style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--bl);border:1px solid #bfdbfe;border-radius:7px;font-size:12px;font-weight:600;color:var(--blue);">'
-      + esc(c) + ' <button onclick="remCls('+i+')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;line-height:1;padding:0;">×</button></div>';
-  }).join('');
-}
-
-// ─── TEACHER FORM ────────────────────────────
-function hrClick() {
-  hrOn = !hrOn;
-  document.getElementById('hrBox').className = 'hrbox' + (hrOn ? ' on' : '');
-  document.getElementById('hrBox').textContent = hrOn ? '✓' : '';
-  document.getElementById('hrTog').style.borderColor = hrOn ? '#86efac' : 'var(--line)';
-}
-function dayClick(btn) { btn.classList.toggle('off'); }
-
-function addTeacher() {
-  var name = (document.getElementById('tN').value||'').trim();
-  var branch = (document.getElementById('tB').value||'').trim();
-  if (!name)   { toast('Ad Soyad girin', 'err'); return; }
-  if (!branch) { toast('Branş girin', 'err'); return; }
-  var blocked = [];
-  document.querySelectorAll('#tDays .day.off').forEach(function(b){ blocked.push(b.getAttribute('data-d')); });
-  var t = {
-    id: 't' + Date.now(),
-    name: name,
-    branch: branch,
-    homeroom: hrOn,
-    blocked: blocked,
-    color: color(DB.teachers.length)
-  };
-  DB.teachers.push(t);
-  save();
-  // reset form
-  document.getElementById('tN').value = '';
-  document.getElementById('tB').value = '';
-  document.querySelectorAll('#tDays .day').forEach(function(b){ b.classList.remove('off'); });
-  hrOn = false;
-  document.getElementById('hrBox').className = 'hrbox';
-  document.getElementById('hrBox').textContent = '';
-  document.getElementById('hrTog').style.borderColor = 'var(--line)';
-  renderTeachers();
-  toast(name + ' kaydedildi', 'ok');
-}
-function remTeacher(id) {
-  DB.teachers = DB.teachers.filter(function(t){ return t.id !== id; });
-  DB.entries  = DB.entries.filter(function(e){ return e.tid !== id; });
-  cleanSched();
-  save();
-  renderTeachers();
-  renderLessons();
-  fillTSelect();
-  toast('Silindi');
-}
-function clearTeachers() {
-  if (!confirm('Tüm öğretmenler silinsin mi?')) return;
-  DB.teachers = []; DB.entries = [];
-  cleanSched(); save(); renderTeachers(); renderLessons(); fillTSelect();
-}
-function renderTeachers() {
-  var el = document.getElementById('tList');
-  var em = document.getElementById('tEmpty');
-  var cn = document.getElementById('tCnt');
-  if (!el) return;
-  cn.textContent = DB.teachers.length ? '(' + DB.teachers.length + ')' : '';
-  if (!DB.teachers.length) { el.innerHTML = ''; em.style.display = ''; return; }
-  em.style.display = 'none';
-  el.innerHTML = DB.teachers.map(function(t) {
-    var bd = (t.blocked && t.blocked.length) ? ' · <span style="color:var(--red);font-size:10px;">✕ ' + t.blocked.map(function(d){ return d.substring(0,3); }).join(', ') + '</span>' : '';
-    var hr = t.homeroom ? ' · <span style="font-size:10px;background:var(--bl);color:var(--blue);padding:1px 6px;border-radius:4px;">Sınıf Öğrt.</span>' : '';
-    return '<div class="tcard">'
-      + '<div class="tav" style="background:' + t.color + '">' + esc(initials(t.name)) + '</div>'
-      + '<div class="tinfo"><div class="tname">' + esc(t.name) + hr + '</div>'
-      + '<div class="tmeta">' + esc(t.branch) + bd + '</div></div>'
-      + '<button class="btn danger xs" onclick="remTeacher(\'' + t.id + '\')">Sil</button>'
-      + '</div>';
-  }).join('');
-}
-
-// ─── LESSON FORM ─────────────────────────────
-function fillTSelect() {
-  var sel = document.getElementById('lT');
-  if (!sel) return;
-  var cur = sel.value;
-  sel.innerHTML = '<option value="">— Seçin —</option>';
-  DB.teachers.forEach(function(t) {
-    sel.innerHTML += '<option value="' + t.id + '">' + esc(t.name) + ' (' + esc(t.branch) + ')</option>';
-  });
-  if (cur) sel.value = cur;
-}
-function onLT() {
-  var id = document.getElementById('lT').value;
-  var info = document.getElementById('lInfo');
-  var warn = document.getElementById('lWarn');
-  selCls = [];
-  if (!id) { info.style.display = 'none'; warn.style.display = 'none'; fillChips(); return; }
-  var t = DB.teachers.find(function(x){ return x.id === id; });
-  if (!t) return;
-  info.style.display = '';
-  info.innerHTML = '<b>' + esc(t.name) + '</b> · ' + esc(t.branch) + (t.homeroom ? ' · <b style="color:var(--blue);">Sınıf Öğrt.</b>' : '');
-  if (t.blocked && t.blocked.length) {
-    warn.style.display = '';
-    warn.textContent = '🚫 ' + t.name + ' şu günlerde yok: ' + t.blocked.join(', ');
-  } else { warn.style.display = 'none'; }
-  // default lesson name
-  var ln = document.getElementById('lN');
-  if (!ln.value) ln.value = t.branch;
-  fillChips();
-}
-function fillChips() {
-  var el = document.getElementById('lChips');
-  if (!el) return;
-  selCls = [];
-  if (!DB.classes.length) {
-    el.innerHTML = '<span style="font-size:12px;color:var(--ink3);">Önce Ayarlar\'dan sınıf ekleyin</span>';
-    return;
+function ensureGrid(){
+  if(!DB.schedule||typeof DB.schedule!=='object')DB.schedule={
   }
-  var tid = document.getElementById('lT') ? document.getElementById('lT').value : '';
-  var t = tid ? DB.teachers.find(function(x){ return x.id === tid; }) : null;
-  var html = '';
-  if (t && t.homeroom) {
-    html += '<button type="button" class="chip" id="chipAll" onclick="selAll()"">Tümü</button>';
+  ;
+  DAYS.forEach(function(d){
+    if(!DB.schedule[d]||typeof DB.schedule[d]!=='object')DB.schedule[d]={
+    }
+    ;
+    LS.forEach(function(si){
+      if(DB.schedule[d][si]===undefined)DB.schedule[d][si]=null;
+    }
+    );
   }
-  DB.classes.forEach(function(c, i) {
-    html += '<button type="button" class="chip" data-c="' + esc(c) + '" onclick="togCls(this)">' + esc(c) + '</button>';
-  });
-  el.innerHTML = html;
+  );
 }
-function selAll() {
-  var chips = document.querySelectorAll('#lChips .chip:not(#chipAll)');
-  var allOn = Array.from(chips).every(function(c){ return c.classList.contains('on'); });
-  selCls = [];
-  chips.forEach(function(c) {
-    c.classList.toggle('on', !allOn);
-    if (!allOn) selCls.push(c.getAttribute('data-c'));
-  });
-}
-function togCls(btn) {
-  var c = btn.getAttribute('data-c');
-  btn.classList.toggle('on');
-  if (btn.classList.contains('on')) { if (selCls.indexOf(c) < 0) selCls.push(c); }
-  else { selCls = selCls.filter(function(x){ return x !== c; }); }
-}
-function chHrs(d) {
-  hrs = Math.max(1, Math.min(25, hrs + d));
-  document.getElementById('hrsV').textContent = hrs;
-}
-function addLesson() {
-  var tid = (document.getElementById('lT').value||'').trim();
-  var name = (document.getElementById('lN').value||'').trim();
-  if (!tid)  { toast('Öğretmen seçin', 'err'); return; }
-  if (!name) { toast('Ders adı girin', 'err'); return; }
-  if (!selCls.length) { toast('En az 1 sınıf seçin', 'err'); return; }
-  var t = DB.teachers.find(function(x){ return x.id === tid; });
-  var c = t ? t.color : color(DB.entries.length);
-  selCls.forEach(function(cls) {
-    DB.entries.push({ id:'e'+Date.now()+Math.random(), tid:tid, name:name, cls:cls, hrs:hrs, color:c });
-  });
-  document.getElementById('lN').value = '';
-  document.getElementById('lT').value = '';
-  document.getElementById('lInfo').style.display = 'none';
-  document.getElementById('lWarn').style.display = 'none';
-  selCls = [];
-  fillChips();
-  save();
-  renderLessons();
-  toast('Ders ataması kaydedildi', 'ok');
-}
-function remLesson(id) {
-  DB.entries = DB.entries.filter(function(e){ return e.id !== id; });
-  cleanSched(); save(); renderLessons();
-}
-function clearLessons() {
-  if (!confirm('Tüm atamalar silinsin mi?')) return;
-  DB.entries = []; cleanSched(); save(); renderLessons(); refreshSched();
-}
-function renderLessons() {
-  var el = document.getElementById('lList');
-  var em = document.getElementById('lEmpty');
-  var cn = document.getElementById('lCnt');
-  if (!el) return;
-  cn.textContent = DB.entries.length ? '(' + DB.entries.length + ')' : '';
-  if (!DB.entries.length) { el.innerHTML = ''; em.style.display = ''; return; }
-  em.style.display = 'none';
-  el.innerHTML = DB.entries.map(function(e) {
-    var t = DB.teachers.find(function(x){ return x.id === e.tid; });
-    return '<div class="ecard">'
-      + '<div class="edot" style="background:' + e.color + '"></div>'
-      + '<div style="flex:1;min-width:0;">'
-      + '<div style="font-size:12px;font-weight:700;">' + esc(e.name) + ' — <span style="color:var(--blue);">' + esc(e.cls) + '</span></div>'
-      + '<div style="font-size:10px;color:var(--ink3);">' + esc(t?t.name:'?') + ' · ' + e.hrs + ' saat/hafta</div>'
-      + '</div>'
-      + '<button class="btn danger xs" onclick="remLesson(\'' + e.id + '\')">Sil</button>'
-      + '</div>';
-  }).join('');
-}
-
-// ─── SCHEDULE ────────────────────────────────
-function cleanSched() {
-  var ids = {};
-  DB.entries.forEach(function(e){ ids[e.id] = true; });
+function cleanSched(){
+  var ids={
+  }
+  ;
+  DB.entries.forEach(function(e){
+    ids[e.id]=true;
+  }
+  );
   ensureGrid();
-  DAYS.forEach(function(d) {
-    LS.forEach(function(si) {
-      if (DB.schedule[d][si] && !ids[DB.schedule[d][si]]) DB.schedule[d][si] = null;
-    });
-  });
+  DAYS.forEach(function(d){
+    LS.forEach(function(si){
+      if(DB.schedule[d][si]&&!ids[DB.schedule[d][si]])DB.schedule[d][si]=null;
+    }
+    );
+  }
+  );
 }
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(t._t);t._t=setTimeout(function(){t.className='toast';},2600);}
+function clr(i){return COLORS[Math.abs(i)%COLORS.length];}
+function ini(n){return String(n||'').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();}
 
-function canPlace(entry, day, si) {
-  // slot free?
-  if (DB.schedule[day][si] !== null) return false;
-  // blocked day?
-  var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
-  if (t && t.blocked && t.blocked.indexOf(day) >= 0) return false;
-  // max 2 same entry per day
-  var inDay = LS.filter(function(s){ return DB.schedule[day][s] === entry.id; }).length;
-  if (inDay >= 2) return false;
-  // if already 1 in day → new slot must be adjacent
-  if (inDay === 1) {
-    var pos = LS.indexOf(si);
-    var existPos = -1;
-    LS.forEach(function(s, i){ if (DB.schedule[day][s] === entry.id) existPos = i; });
-    var adj = (pos === existPos - 1 || pos === existPos + 1) && Math.abs(si - LS[existPos]) === 1;
-    if (!adj) return false;
-  }
-  // teacher not double-booked same slot
-  DAYS.forEach(function(d) {
-    if (d === day) return;
-    var occ = DB.schedule[d][si];
-    if (!occ) return;
-    var oe = DB.entries.find(function(e){ return e.id === occ; });
-    if (oe && oe.tid === entry.tid) return false; // can't enforce inside forEach, handled below
-  });
-  for (var di = 0; di < DAYS.length; di++) {
-    var d2 = DAYS[di];
-    if (d2 === day) continue;
-    var occ2 = DB.schedule[d2][si];
-    if (!occ2) continue;
-    var oe2 = DB.entries.find(function(e){ return e.id === occ2; });
-    if (oe2 && oe2.tid === entry.tid) return false;
-    if (oe2 && oe2.cls === entry.cls) return false;
-  }
-  return true;
+function goNav(id,idx){['p1','p2','p3','p4'].forEach(function(p){document.getElementById(p).className='pg';});document.getElementById(id).className='pg on';document.querySelectorAll('.tab').forEach(function(t,i){t.className=i===idx?'tab on':'tab';});if(id==='p2'){fillSelects();fillChips();}if(id==='p3'){fillFSel();refreshSched();updateStats();}}
+
+function saveSch(){DB.school={name:document.getElementById('sN').value,year:document.getElementById('sY').value,sem:document.getElementById('sS').value};save();}
+function loadSch(){document.getElementById('sN').value=DB.school.name||'';document.getElementById('sY').value=DB.school.year||'2025-2026';var sel=document.getElementById('sS');for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===DB.school.sem){sel.selectedIndex=i;break;}}}
+
+function addCls(){var v=(document.getElementById('nC').value||'').trim();if(!v)return;if(DB.classes.indexOf(v)>=0){toast('Zaten var','err');return;}DB.classes.push(v);document.getElementById('nC').value='';save();renderCls();fillHR();fillChips();}
+function remCls(i){DB.classes.splice(i,1);save();renderCls();fillHR();fillChips();}
+function renderCls(){var el=document.getElementById('cList');if(!el)return;if(!DB.classes.length){el.innerHTML='<span style="font-size:12px;
+  color:var(--ink3);
+  ">Hen\u00fcz s\u0131n\u0131f yok</span>';return;}el.innerHTML=DB.classes.map(function(c,i){return '<div style="display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:5px 10px;
+  background:var(--bl);
+  border:1px solid #bfdbfe;
+  border-radius:7px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--blue);
+  ">'+esc(c)+' <button onclick="remCls('+i+')" style="background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--red);
+  font-size:13px;
+  line-height:1;
+  padding:0;
+  ">\u00d7</button></div>';}).join('');}
+function fillHR(){var sel=document.getElementById('tHR');if(!sel)return;var cur=sel.value;sel.innerHTML='<option value="">\u2014 Yok \u2014</option>';DB.classes.forEach(function(c){sel.innerHTML+='<option value="'+esc(c)+'">'+esc(c)+'</option>';});if(cur)sel.value=cur;}
+
+function addTD(){var inp=document.getElementById('tDInp');var v=(inp.value||'').trim();if(!v)return;if(tempDers.indexOf(v)>=0){toast('Zaten eklendi','err');return;}tempDers.push(v);inp.value='';renderTDList();}
+function remTD(i){tempDers.splice(i,1);renderTDList();}
+function renderTDList(){var el=document.getElementById('tDList');if(!el)return;el.innerHTML=tempDers.map(function(d,i){return '<span class="dtag">'+esc(d)+' <button onclick="remTD('+i+')" style="background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--red);
+  font-size:12px;
+  padding:0;
+  line-height:1;
+  ">\u00d7</button></span>';}).join('');}
+
+function addTeacher(){var name=(document.getElementById('tN').value||'').trim();var branch=(document.getElementById('tBr').value||'').trim();var hr=document.getElementById('tHR').value;if(!name){toast('Ad Soyad girin','err');return;}if(!branch){toast('Bran\u015f girin','err');return;}var blocked=[];document.querySelectorAll('#tDays .day.off').forEach(function(b){blocked.push(b.getAttribute('data-d'));});var lessons=tempDers.slice();if(lessons.indexOf(branch)<0)lessons.unshift(branch);DB.teachers.push({id:'t'+Date.now(),name:name,branch:branch,lessons:lessons,homeroom:hr||'',blocked:blocked,color:clr(DB.teachers.length)});document.getElementById('tN').value='';document.getElementById('tBr').value='';document.getElementById('tHR').value='';document.querySelectorAll('#tDays .day').forEach(function(b){b.classList.remove('off');});tempDers=[];renderTDList();save();renderTeachers();fillSelects();toast(name+' kaydedildi','ok');}
+function remTeacher(id){DB.teachers=DB.teachers.filter(function(t){return t.id!==id;});DB.entries=DB.entries.filter(function(e){return e.tid!==id;});cleanSched();save();renderTeachers();renderLessons();fillSelects();toast('Silindi');}
+function renderTeachers(){var el=document.getElementById('tList'),em=document.getElementById('tEmpty'),cn=document.getElementById('tCnt');if(!el)return;cn.textContent=DB.teachers.length?'('+DB.teachers.length+')':'';if(!DB.teachers.length){el.innerHTML='';em.style.display='';return;}em.style.display='none';el.innerHTML=DB.teachers.map(function(t){var hr=t.homeroom?'<span class="hr-tag">'+esc(t.homeroom)+' S\u0131n\u0131f \u00d6\u011frt.</span>':'';var bd=(t.blocked&&t.blocked.length)?'<br><span style="color:var(--red);
+  font-size:10px;
+  ">\u2715 '+t.blocked.map(function(d){return d.substring(0,3);}).join(', ')+'</span>':'';var ls=(t.lessons&&t.lessons.length)?'<br><span style="color:var(--blue);
+  font-size:10px;
+  ">\ud83d\udcda '+t.lessons.map(esc).join(', ')+'</span>':'';return '<div class="tcard"><div class="tav" style="background:'+t.color+'">'+esc(ini(t.name))+'</div><div class="tinfo"><div class="tname">'+esc(t.name)+hr+'</div><div class="tmeta">'+esc(t.branch)+ls+bd+'</div></div><button class="btn danger xs" onclick="remTeacher(\''+t.id+'\')">Sil</button></div>';}).join('');}
+
+function fillSelects(){var sel=document.getElementById('lT');if(!sel)return;var cur=sel.value;sel.innerHTML='<option value="">\u2014 Se\u00e7in \u2014</option>';DB.teachers.forEach(function(t){sel.innerHTML+='<option value="'+t.id+'">'+esc(t.name)+'</option>';});if(cur)sel.value=cur;onLT();}
+function onLT(){var id=document.getElementById('lT').value,info=document.getElementById('lTInfo'),dSel=document.getElementById('lD'),warn=document.getElementById('lWarn');selCls=[];dSel.innerHTML='<option value="">\u2014 Se\u00e7in \u2014</option>';if(!id){info.style.display='none';warn.style.display='none';fillChips();return;}var t=DB.teachers.find(function(x){return x.id===id;});if(!t)return;info.style.display='';var hrT=t.homeroom?' \u00b7 <b style="color:var(--green);
+  ">'+esc(t.homeroom)+' S\u0131n\u0131f \u00d6\u011frt.</b>':'';info.innerHTML='<b>'+esc(t.name)+'</b> \u00b7 '+esc(t.branch)+hrT;if(t.blocked&&t.blocked.length){warn.style.display='';warn.textContent='\ud83d\udeab '+t.name+' \u015fu g\u00fcnlerde yok: '+t.blocked.join(', ');}else warn.style.display='none';var lessons=(t.lessons&&t.lessons.length)?t.lessons:[t.branch];lessons.forEach(function(l){dSel.innerHTML+='<option value="'+esc(l)+'">'+esc(l)+'</option>';});fillChips();}
+function fillChips(){var el=document.getElementById('lChips');if(!el)return;selCls=[];var tid=(document.getElementById('lT')||{}).value||'';var t=tid?DB.teachers.find(function(x){return x.id===tid;}):null;if(!DB.classes.length){el.innerHTML='<span style="font-size:12px;
+  color:var(--ink3);
+  ">\u00d6nce Ayarlar\'dan s\u0131n\u0131f ekleyin</span>';return;}var html='';if(t&&t.homeroom)html+='<button type="button" class="chip" id="chipAll" onclick="selAll()">T\u00fcm\u00fc</button>';DB.classes.forEach(function(c){var isHR=t&&t.homeroom===c;html+='<button type="button" class="chip'+(isHR?' hr':'')+'" data-c="'+esc(c)+'" onclick="togCls(this)">'+esc(c)+(isHR?' \ud83c\udfe0':'')+'</button>';});el.innerHTML=html;}
+function selAll(){var chips=document.querySelectorAll('#lChips .chip:not(#chipAll)');var allOn=Array.from(chips).every(function(c){return c.classList.contains('on');});selCls=[];chips.forEach(function(c){c.classList.toggle('on',!allOn);if(!allOn)selCls.push(c.getAttribute('data-c'));});}
+function togCls(btn){var c=btn.getAttribute('data-c');btn.classList.toggle('on');if(btn.classList.contains('on')){if(selCls.indexOf(c)<0)selCls.push(c);}else{selCls=selCls.filter(function(x){return x!==c;});}}
+function chHrs(d){hrs=Math.max(1,Math.min(25,hrs+d));document.getElementById('hrsV').textContent=hrs;}
+function addLesson(){var tid=(document.getElementById('lT').value||'').trim(),lname=(document.getElementById('lD').value||'').trim();if(!tid){toast('\u00d6\u011fretmen se\u00e7in','err');return;}if(!lname){toast('Ders se\u00e7in','err');return;}if(!selCls.length){toast('En az 1 s\u0131n\u0131f se\u00e7in','err');return;}var t=DB.teachers.find(function(x){return x.id===tid;});var c=t?t.color:clr(DB.entries.length);selCls.forEach(function(cls){DB.entries.push({id:'e'+Date.now()+Math.random(),tid:tid,lesson:lname,cls:cls,hrs:hrs,color:c});});document.getElementById('lD').value='';document.getElementById('lT').value='';document.getElementById('lTInfo').style.display='none';document.getElementById('lWarn').style.display='none';selCls=[];fillChips();save();renderLessons();toast('Ders atamas\u0131 kaydedildi','ok');}
+function remLesson(id){DB.entries=DB.entries.filter(function(e){return e.id!==id;});cleanSched();save();renderLessons();}
+function renderLessons(){var el=document.getElementById('lList'),em=document.getElementById('lEmpty'),cn=document.getElementById('lCnt');if(!el)return;cn.textContent=DB.entries.length?'('+DB.entries.length+')':'';if(!DB.entries.length){el.innerHTML='';em.style.display='';return;}em.style.display='none';el.innerHTML=DB.entries.map(function(e){var t=DB.teachers.find(function(x){return x.id===e.tid;});return '<div class="ecard"><div class="edot" style="background:'+e.color+'"></div><div style="flex:1;
+  min-width:0;
+  "><div style="font-size:12px;
+  font-weight:700;
+  ">'+esc(e.lesson)+' \u2014 <span style="color:var(--blue);
+  ">'+esc(e.cls)+'</span></div><div style="font-size:10px;
+  color:var(--ink3);
+  ">'+esc(t?t.name:'?')+' \u00b7 '+e.hrs+' saat/hafta</div></div><button class="btn danger xs" onclick="remLesson(\''+e.id+'\')">Sil</button></div>';}).join('');}
+
+function canPlace(entry,day,si){if(DB.schedule[day][si]!==null)return false;var t=DB.teachers.find(function(x){return x.id===entry.tid;});if(t&&t.blocked&&t.blocked.indexOf(day)>=0)return false;var inDay=LS.filter(function(s){return DB.schedule[day][s]===entry.id;}).length;if(inDay>=2)return false;if(inDay===1){var pos=LS.indexOf(si),ep=-1;LS.forEach(function(s,i){if(DB.schedule[day][s]===entry.id)ep=i;});if(ep<0)return false;if(!((pos===ep-1||pos===ep+1)&&Math.abs(si-LS[ep])===1))return false;}for(var di=0;di<DAYS.length;di++){var d2=DAYS[di];if(d2===day)continue;var eid=DB.schedule[d2][si];if(!eid)continue;var oe=DB.entries.find(function(e){return e.id===eid;});if(!oe)continue;if(oe.tid===entry.tid||oe.cls===entry.cls)return false;}return true;}
+function autoSchedule(){if(!DB.entries.length){toast('\u00d6nce ders atamas\u0131 ekleyin','err');return;}ensureGrid();DAYS.forEach(function(d){LS.forEach(function(si){DB.schedule[d][si]=null;});});function shuf(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=b[i];b[i]=b[j];b[j]=tmp;}return b;}var tasks=DB.entries.slice().sort(function(a,b){return b.hrs-a.hrs;});tasks.forEach(function(entry){var t=DB.teachers.find(function(x){return x.id===entry.tid;});var blocked=(t&&t.blocked)?t.blocked:[];var avDays=shuf(DAYS.filter(function(d){return blocked.indexOf(d)<0;}));var placed=0;avDays.forEach(function(day){if(placed>=entry.hrs)return;if(LS.filter(function(s){return DB.schedule[day][s]===entry.id;}).length>0)return;for(var pi=0;pi<LS.length-1;pi++){var si1=LS[pi],si2=LS[pi+1];if(si2-si1!==1)continue;if(canPlace(entry,day,si1)&&canPlace(entry,day,si2)){DB.schedule[day][si1]=entry.id;DB.schedule[day][si2]=entry.id;placed+=2;break;}}});if(placed<entry.hrs){var sinDays=shuf(avDays.filter(function(d){return LS.every(function(s){return DB.schedule[d][s]!==entry.id;});}));var singles=shuf(sinDays.reduce(function(acc,d){LS.forEach(function(si){acc.push({d:d,si:si});});return acc;},[]) );singles.forEach(function(x){if(placed>=entry.hrs)return;if(canPlace(entry,x.d,x.si)){DB.schedule[x.d][x.si]=entry.id;placed++;}});}});save();fillFSel();drawTable();refreshSched();updateStats();toast('Program olu\u015fturuldu!','ok');goNav('p3',2);}
+function clearSched(){if(!confirm('Program temizlensin mi?'))return;ensureGrid();DAYS.forEach(function(d){LS.forEach(function(si){DB.schedule[d][si]=null;});});save();refreshSched();updateStats();}
+function refreshSched(){ensureGrid();var has=DAYS.some(function(d){return LS.some(function(si){return DB.schedule[d][si];});});document.getElementById('sEmpty').style.display=has?'none':'';document.getElementById('sArea').style.display=has?'':'none';if(has)drawTable();}
+
+function setView(v,btn){curView=v;document.getElementById('vtC').className=v==='cls'?'vtab on':'vtab';document.getElementById('vtT').className=v==='tch'?'vtab on':'vtab';fillFSel();drawTable();}
+function fillFSel(){var sel=document.getElementById('fSel');if(!sel)return;var cur=sel.value;sel.innerHTML='';if(curView==='cls'){if(!DB.classes.length){sel.innerHTML='<option>\u2014 S\u0131n\u0131f yok \u2014</option>';return;}DB.classes.forEach(function(c){sel.innerHTML+='<option value="'+esc(c)+'">'+esc(c)+'</option>';});}else{if(!DB.teachers.length){sel.innerHTML='<option>\u2014 \u00d6\u011fretmen yok \u2014</option>';return;}DB.teachers.forEach(function(t){sel.innerHTML+='<option value="'+t.id+'">'+esc(t.name)+'</option>';});}if(cur)sel.value=cur;}
+function drawTable(){var tbl=document.getElementById('tbl');if(!tbl)return;ensureGrid();var selVal=(document.getElementById('fSel')||{}).value||'',infoEl=document.getElementById('fInfo'),visIds={};if(curView==='cls'){DB.entries.forEach(function(e){if(e.cls===selVal)visIds[e.id]=true;});if(infoEl)infoEl.textContent=selVal?selVal+' s\u0131n\u0131f\u0131n\u0131n program\u0131':'';}else{DB.entries.forEach(function(e){if(e.tid===selVal)visIds[e.id]=true;});var tObj=DB.teachers.find(function(x){return x.id===selVal;});if(infoEl)infoEl.textContent=tObj?tObj.name+' \u00f6\u011fretmeninin program\u0131':'';}var h='<thead><tr><th>S\u0131ra</th>';DAYS.forEach(function(d){h+='<th>'+d+'</th>';});h+='</tr></thead><tbody>';SLOTS.forEach(function(slot,si){var isL=slot.t==='b';h+='<tr'+(isL?' class="lrow"':'')+'>'; if(isL){h+='<td><div class="rh"><div class="rn">\u2615</div><div class="rl2">\u00d6\u011fle</div></div></td>';DAYS.forEach(function(){h+='<td><div class="lunchdiv">\u2615 \u00d6\u011fle Aras\u0131</div></td>';});}else{var num=slot.l.split('.')[0];h+='<td><div class="rh"><div class="rn">'+num+'.</div><div class="rl2">Ders</div></div></td>';DAYS.forEach(function(day){var eid=DB.schedule[day]?DB.schedule[day][si]:null,show=eid&&visIds[eid],e=show?DB.entries.find(function(x){return x.id===eid;}):null,tc=e?DB.teachers.find(function(x){return x.id===e.tid;}):null;if(e){var r=parseInt(e.color.slice(1,3),16),g=parseInt(e.color.slice(3,5),16),b=parseInt(e.color.slice(5,7),16),l2=curView==='cls'?esc(tc?tc.name:'?'):esc(e.cls);h+='<td><div class="cell has" style="background:rgba('+r+','+g+','+b+',.1);
+  border-color:rgba('+r+','+g+','+b+',.3);
+  " onclick="openM(\''+day+'\','+si+')"><button class="cdel" onclick="event.stopPropagation();
+  clrCell(\''+day+'\','+si+')">\u00d7</button><div class="cl" style="color:'+e.color+'">'+esc(e.lesson)+'</div><div class="cc" style="color:'+e.color+'">'+l2+'</div></div></td>';}else{h+='<td><div class="cell" onclick="openM(\''+day+'\','+si+'\')"><span class="cp">+</span></div></td>';
 }
-
-function autoSchedule() {
-  if (!DB.entries.length) { toast('Önce ders ataması ekleyin', 'err'); return; }
-  ensureGrid();
-  DAYS.forEach(function(d){ LS.forEach(function(si){ DB.schedule[d][si] = null; }); });
-
-  function shuf(a) {
-    var b = a.slice();
-    for (var i = b.length-1; i > 0; i--) {
-      var j = Math.floor(Math.random()*(i+1));
-      var tmp = b[i]; b[i] = b[j]; b[j] = tmp;
-    }
-    return b;
-  }
-
-  var tasks = DB.entries.slice().sort(function(a,b){ return b.hrs - a.hrs; });
-
-  tasks.forEach(function(entry) {
-    var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
-    var blocked = (t && t.blocked) ? t.blocked : [];
-    var avDays = shuf(DAYS.filter(function(d){ return blocked.indexOf(d) < 0; }));
-    var placed = 0;
-
-    // Pass 1: place as 2-consecutive blocks
-    if (entry.hrs >= 2) {
-      avDays.forEach(function(day) {
-        if (placed >= entry.hrs) return;
-        var alr = LS.filter(function(s){ return DB.schedule[day][s] === entry.id; }).length;
-        if (alr > 0) return;
-        for (var pi = 0; pi < LS.length - 1; pi++) {
-          var si1 = LS[pi], si2 = LS[pi+1];
-          if (si2 - si1 !== 1) continue; // must be truly consecutive (no lunch gap)
-          if (canPlace(entry, day, si1) && canPlace(entry, day, si2)) {
-            DB.schedule[day][si1] = entry.id;
-            DB.schedule[day][si2] = entry.id;
-            placed += 2;
-            break;
-          }
-        }
-      });
-    }
-
-    // Pass 2: remaining singles — only on days with 0 of this entry
-    if (placed < entry.hrs) {
-      var sinDays = shuf(avDays.filter(function(d){
-        return LS.every(function(s){ return DB.schedule[d][s] !== entry.id; });
-      }));
-      var singleSlots = [];
-      sinDays.forEach(function(d){ LS.forEach(function(si){ singleSlots.push({d:d,si:si}); }); });
-      singleSlots = shuf(singleSlots);
-      singleSlots.forEach(function(x) {
-        if (placed >= entry.hrs) return;
-        if (canPlace(entry, x.d, x.si)) { DB.schedule[x.d][x.si] = entry.id; placed++; }
-      });
-    }
-  });
-
+}
+);
+}
+h+='</tr>';
+}
+);
+h+='</tbody>';
+tbl.innerHTML=h;
+checkConflicts();
+}
+function clrCell(day,si){
+  if(DB.schedule[day])DB.schedule[day][si]=null;
   save();
   drawTable();
-  document.getElementById('sEmpty').style.display = 'none';
-  document.getElementById('sArea').style.display = '';
   updateStats();
-  toast('Program oluşturuldu!', 'ok');
-  nav('p3', document.querySelectorAll('.tab')[2]);
 }
-
-function clearSched() {
-  if (!confirm('Program temizlensin mi?')) return;
-  ensureGrid();
-  DAYS.forEach(function(d){ LS.forEach(function(si){ DB.schedule[d][si] = null; }); });
-  save(); refreshSched();
-}
-
-function refreshSched() {
-  ensureGrid();
-  var has = DAYS.some(function(d){ return LS.some(function(si){ return DB.schedule[d][si]; }); });
-  document.getElementById('sEmpty').style.display = has ? 'none' : '';
-  document.getElementById('sArea').style.display = has ? '' : 'none';
-  if (has) { drawTable(); updateStats(); }
-}
-
-function drawTable() {
-  var t = document.getElementById('tbl');
-  if (!t) return;
-  var h = '<thead><tr><th>Sıra</th>';
-  DAYS.forEach(function(d){ h += '<th>' + d + '</th>'; });
-  h += '</tr></thead><tbody>';
-
-  SLOTS.forEach(function(slot, si) {
-    var isL = slot.t === 'b';
-    h += '<tr' + (isL ? ' class="lrow"' : '') + '>';
-    if (isL) {
-      h += '<td><div class="rh"><div class="rn">☕</div><div class="rl">Öğle</div></div></td>';
-      DAYS.forEach(function(){ h += '<td><div class="lunch">☕ Öğle Arası</div></td>'; });
-    } else {
-      var num = slot.l.split('.')[0];
-      h += '<td><div class="rh"><div class="rn">' + num + '.</div><div class="rl">Ders</div></div></td>';
-      DAYS.forEach(function(day) {
-        var eid = DB.schedule[day] ? DB.schedule[day][si] : null;
-        var e = eid ? DB.entries.find(function(x){ return x.id === eid; }) : null;
-        var teacher = e ? DB.teachers.find(function(x){ return x.id === e.tid; }) : null;
-        if (e) {
-          var r=parseInt(e.color.slice(1,3),16), g=parseInt(e.color.slice(3,5),16), b=parseInt(e.color.slice(5,7),16);
-          h += '<td><div class="cell has" style="background:rgba('+r+','+g+','+b+',.1);border-color:rgba('+r+','+g+','+b+',.3);" onclick="openM(\''+day+'\','+si+')">'
-            + '<button class="cdel" onclick="event.stopPropagation();clrCell(\''+day+'\','+si+')">×</button>'
-            + '<div class="cl" style="color:'+e.color+'">'+esc(e.name)+'</div>'
-            + '<div class="cc" style="color:'+e.color+'">'+esc(e.cls)+'</div>'
-            + '<div class="ct">'+esc(teacher?teacher.name:'?')+'</div>'
-            + '</div></td>';
-        } else {
-          h += '<td><div class="cell" onclick="openM(\''+day+'\','+si+'\')"><span class="cp">+</span></div></td>';
-        }
-      });
+function updateStats(){
+  var placed=0;
+  DAYS.forEach(function(d){
+    LS.forEach(function(si){
+      if(DB.schedule[d]&&DB.schedule[d][si])placed++;
     }
-    h += '</tr>';
-  });
-  h += '</tbody>';
-  t.innerHTML = h;
-  checkConflicts();
+    );
+  }
+  );
+  var total=DAYS.length*LS.length;
+  document.getElementById('stats').innerHTML=mk(DB.entries.length,'Atama')+mk(placed,'Atanan')+mk(total-placed,'Bo\u015f')+mk(DB.teachers.length,'\u00d6\u011fretmen');
 }
-
-function clrCell(day, si) {
-  if (DB.schedule[day]) DB.schedule[day][si] = null;
-  save(); drawTable(); updateStats();
-}
-
-function updateStats() {
-  var placed = 0;
-  DAYS.forEach(function(d){ LS.forEach(function(si){ if (DB.schedule[d] && DB.schedule[d][si]) placed++; }); });
-  var total = DAYS.length * LS.length;
-  document.getElementById('stats').innerHTML =
-    stat(DB.entries.length,'Atama') + stat(placed,'Atanan') + stat(total-placed,'Boş') + stat(DB.teachers.length,'Öğretmen');
-}
-function stat(n, l) {
+function mk(n,l){
   return '<div class="stat"><div class="sn">'+n+'</div><div class="sl">'+l+'</div></div>';
 }
-
-function checkConflicts() {
-  var el = document.getElementById('cWarn');
-  var msgs = [];
-  LS.forEach(function(si) {
-    var byT = {}, byC = {};
-    DAYS.forEach(function(d) {
-      var eid = DB.schedule[d] && DB.schedule[d][si];
-      if (!eid) return;
-      var e = DB.entries.find(function(x){ return x.id === eid; });
-      if (!e) return;
-      if (!byT[e.tid]) byT[e.tid] = [];
-      byT[e.tid].push(d);
-      if (!byC[e.cls]) byC[e.cls] = [];
-      byC[e.cls].push(d);
-    });
-    Object.keys(byT).forEach(function(tid) {
-      if (byT[tid].length > 1) {
-        var t = DB.teachers.find(function(x){ return x.id === tid; });
-        msgs.push('⚠ ' + (t?t.name:tid) + ' — ' + SLOTS[si].l + ' saatinde çakışıyor (' + byT[tid].join(', ') + ')');
-      }
-    });
-    Object.keys(byC).forEach(function(cls) {
-      if (byC[cls].length > 1) msgs.push('⚠ ' + cls + ' sınıfı — ' + SLOTS[si].l + ' saatinde çakışıyor');
-    });
-  });
-  el.style.display = msgs.length ? '' : 'none';
-  if (msgs.length) el.innerHTML = '<div style="background:var(--rl);border:1px solid #fecaca;border-radius:8px;padding:10px 13px;font-size:11px;color:var(--red);line-height:1.9;">' + msgs.map(esc).join('<br>') + '</div>';
-}
-
-// ─── MODAL ───────────────────────────────────
-function openM(day, si) {
-  if (SLOTS[si].t === 'b') return;
-  mDay = day; mSi = si;
-  document.getElementById('mSub').textContent = day + ' · ' + SLOTS[si].l;
-  var sel = document.getElementById('mSel');
-  sel.innerHTML = '<option value="">— Boş —</option>';
-  DB.entries.forEach(function(e) {
-    var t = DB.teachers.find(function(x){ return x.id === e.tid; });
-    sel.innerHTML += '<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.cls)+' ('+esc(t?t.name:'?')+')</option>';
-  });
-  var cur = DB.schedule[day] && DB.schedule[day][si];
-  sel.value = cur || '';
-  mChk();
-  document.getElementById('ov').className = 'ov on';
-}
-function mChk() {
-  var v = document.getElementById('mSel').value;
-  var cd = document.getElementById('mConf');
-  if (!v) { cd.style.display = 'none'; return; }
-  var e = DB.entries.find(function(x){ return x.id === v; });
-  if (!e) { cd.style.display = 'none'; return; }
-  var old = DB.schedule[mDay][mSi];
-  DB.schedule[mDay][mSi] = null;
-  var ok = canPlace(e, mDay, mSi);
-  DB.schedule[mDay][mSi] = old;
-  cd.style.display = '';
-  cd.style.cssText = 'display:block;font-size:11px;padding:6px 9px;border-radius:6px;background:'+(ok?'var(--gl)':'var(--rl)')+';color:'+(ok?'var(--green)':'var(--red)')+';border:1px solid '+(ok?'#bbf7d0':'#fecaca')+';';
-  cd.textContent = ok ? '✓ Çakışma yok' : '⚠ Çakışma var — yine de kaydedebilirsiniz';
-}
-function saveCell() {
-  var v = document.getElementById('mSel').value;
-  if (DB.schedule[mDay]) DB.schedule[mDay][mSi] = v || null;
-  closeM(); save(); drawTable(); updateStats();
-}
-function closeM() { document.getElementById('ov').className = 'ov'; }
-
-// ─── PDF ─────────────────────────────────────
-function dlPDF() {
-  var has = DAYS.some(function(d){ return LS.some(function(si){ return DB.schedule[d] && DB.schedule[d][si]; }); });
-  if (!has) { toast('Önce program oluşturun', 'err'); return; }
-  var jsPDF = window.jspdf.jsPDF;
-  var doc = new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  var W=297,H=210,mg=12;
-  var school = DB.school.name||'Okul';
-  var year = DB.school.year||'2025-2026';
-  var sem = DB.school.sem||'1. Dönem';
-
-  doc.setFillColor(247,246,243); doc.rect(0,0,W,H,'F');
-  doc.setFillColor(37,99,235); doc.rect(0,0,W,20,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(13); doc.setFont('helvetica','bold');
-  doc.text(school,mg,13);
-  doc.setFontSize(8); doc.setFont('helvetica','normal');
-  doc.text(year+' · '+sem+' · Haftalık Ders Programı',mg,19);
-  doc.setTextColor(180,200,255); doc.setFontSize(7.5);
-  doc.text(new Date().toLocaleDateString('tr-TR'),W-mg,13,{align:'right'});
-
-  var top=24, fw=22, cw=(W-2*mg-fw)/DAYS.length, rh=22, aw=W-2*mg;
-  doc.setFillColor(245,244,240); doc.rect(mg,top,aw,10,'F');
-  doc.setDrawColor(229,227,222); doc.setLineWidth(0.25); doc.rect(mg,top,aw,10,'D');
-  doc.setTextColor(153,153,153); doc.setFontSize(7); doc.setFont('helvetica','bold');
-  doc.text('SIRA',mg+fw/2,top+6.5,{align:'center'});
-  DAYS.forEach(function(d,di){ doc.text(d.toUpperCase(),mg+fw+di*cw+cw/2,top+6.5,{align:'center'}); });
-
-  SLOTS.forEach(function(slot,si) {
-    var ry=top+10+si*rh, isL=slot.t==='b', rhi=isL?10:rh;
-    doc.setFillColor(isL?255:si%2===0?255:252, isL?251:252, isL?235:250);
-    doc.rect(mg,ry,aw,rhi,'F');
-    doc.setDrawColor(229,227,222); doc.setLineWidth(0.2); doc.rect(mg,ry,aw,rhi,'D');
-    doc.setFillColor(245,244,240); doc.rect(mg,ry,fw,rhi,'F');
-    if (isL) {
-      doc.setTextColor(217,119,6); doc.setFontSize(7); doc.setFont('helvetica','bold');
-      doc.text('OGLE',mg+fw/2,ry+rhi/2+2,{align:'center'});
-    } else {
-      var num=slot.l.split('.')[0];
-      doc.setTextColor(17,17,17); doc.setFontSize(9); doc.setFont('helvetica','bold');
-      doc.text(num+'.',mg+fw/2,ry+rh*.42,{align:'center'});
-      doc.setTextColor(153,153,153); doc.setFontSize(5.5); doc.setFont('helvetica','normal');
-      doc.text('Ders',mg+fw/2,ry+rh*.7,{align:'center'});
+function checkConflicts(){
+  var el=document.getElementById('cWarn'),msgs=[];
+  LS.forEach(function(si){
+    var byT={
     }
-    if (isL) {
+    ,byC={
+    }
+    ;
+    DAYS.forEach(function(d){
+      var eid=DB.schedule[d]&&DB.schedule[d][si];
+      if(!eid)return;
+      var e=DB.entries.find(function(x){
+        return x.id===eid;
+      }
+      );
+      if(!e)return;
+      if(!byT[e.tid])byT[e.tid]=[];
+      byT[e.tid].push(d);
+      if(!byC[e.cls])byC[e.cls]=[];
+      byC[e.cls].push(d);
+    }
+    );
+    Object.keys(byT).forEach(function(tid){
+      if(byT[tid].length>1){
+        var t=DB.teachers.find(function(x){
+          return x.id===tid;
+        }
+        );
+        msgs.push('\u26a0 '+(t?t.name:tid)+' \u2014 '+SLOTS[si].l+' \u00e7ak\u0131\u015f\u0131yor ('+byT[tid].join(', ')+')');
+      }
+    }
+    );
+    Object.keys(byC).forEach(function(cls){
+      if(byC[cls].length>1)msgs.push('\u26a0 '+cls+' \u2014 '+SLOTS[si].l+' \u00e7ak\u0131\u015f\u0131yor');
+    }
+    );
+  }
+  );
+  el.style.display=msgs.length?'':'none';
+  if(msgs.length)el.innerHTML='<div style="background:var(--rl);border:1px solid #fecaca;border-radius:8px;padding:10px 13px;font-size:11px;color:var(--red);line-height:1.9;">'+msgs.map(esc).join('<br>')+'</div>';
+}
+function openM(day,si){
+  if(SLOTS[si].t==='b')return;
+  mDay=day;
+  mSi=si;
+  document.getElementById('mSub').textContent=day+' \u00b7 '+SLOTS[si].l;
+  var sel=document.getElementById('mSel');
+  sel.innerHTML='<option value="">\u2014 Bo\u015f \u2014</option>';
+  DB.entries.forEach(function(e){
+    var t=DB.teachers.find(function(x){
+      return x.id===e.tid;
+    }
+    );
+    sel.innerHTML+='<option value="'+e.id+'">'+esc(e.lesson)+' \u2014 '+esc(e.cls)+' ('+esc(t?t.name:'?')+')</option>';
+  }
+  );
+  var cur=DB.schedule[day]&&DB.schedule[day][si];
+  sel.value=cur||'';
+  mChk();
+  document.getElementById('ov').className='ov on';
+}
+function mChk(){
+  var v=document.getElementById('mSel').value,cd=document.getElementById('mConf');
+  if(!v){
+    cd.style.display='none';
+    return;
+  }
+  var e=DB.entries.find(function(x){
+    return x.id===v;
+  }
+  );
+  if(!e){
+    cd.style.display='none';
+    return;
+  }
+  var old=DB.schedule[mDay][mSi];
+  DB.schedule[mDay][mSi]=null;
+  var ok=canPlace(e,mDay,mSi);
+  DB.schedule[mDay][mSi]=old;
+  cd.style.display='';
+  cd.style.cssText='display:block;font-size:11px;padding:6px 9px;border-radius:6px;background:'+(ok?'var(--gl)':'var(--rl)')+';color:'+(ok?'var(--green)':'var(--red)')+';border:1px solid '+(ok?'#bbf7d0':'#fecaca')+';';
+  cd.textContent=ok?'\u2713 \u00c7ak\u0131\u015fma yok':'\u26a0 \u00c7ak\u0131\u015fma var \u2014 yine de kaydedebilirsiniz';
+}
+function saveCell(){
+  var v=document.getElementById('mSel').value;
+  if(DB.schedule[mDay])DB.schedule[mDay][mSi]=v||null;
+  closeM();
+  save();
+  drawTable();
+  updateStats();
+}
+function closeM(){
+  document.getElementById('ov').className='ov';
+}
+function dlPDF(){
+  var has=DAYS.some(function(d){
+    return LS.some(function(si){
+      return DB.schedule[d]&&DB.schedule[d][si];
+    }
+    );
+  }
+  );
+  if(!has){
+    toast('\u00d6nce program olu\u015fturun','err');
+    return;
+  }
+  var jsPDF=window.jspdf.jsPDF;
+  var doc=new jsPDF({
+    orientation:'landscape',unit:'mm',format:'a4'
+  }
+  );
+  var W=297,H=210,mg=12,school=DB.school.name||'Okul',year=DB.school.year||'2025-2026',sem=DB.school.sem||'1. D\u00f6nem';
+  var selVal=(document.getElementById('fSel')||{
+  }
+  ).value||'';
+  var suffix='';
+  if(curView==='cls'&&selVal)suffix=' \u2014 '+selVal;
+  else if(curView==='tch'&&selVal){
+    var tObj=DB.teachers.find(function(x){
+      return x.id===selVal;
+    }
+    );
+    if(tObj)suffix=' \u2014 '+tObj.name;
+  }
+  var visIds={
+  }
+  ;
+  if(curView==='cls')DB.entries.forEach(function(e){
+    if(e.cls===selVal)visIds[e.id]=true;
+  }
+  );
+  else DB.entries.forEach(function(e){
+    if(e.tid===selVal)visIds[e.id]=true;
+  }
+  );
+  doc.setFillColor(247,246,243);
+  doc.rect(0,0,W,H,'F');
+  doc.setFillColor(37,99,235);
+  doc.rect(0,0,W,20,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(12);
+  doc.setFont('helvetica','bold');
+  doc.text((school+suffix).substring(0,50),mg,13);
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  doc.text(year+' \u00b7 '+sem+' \u00b7 Haftal\u0131k Ders Program\u0131',mg,19);
+  doc.setTextColor(180,200,255);
+  doc.setFontSize(7.5);
+  doc.text(new Date().toLocaleDateString('tr-TR'),W-mg,13,{
+    align:'right'
+  }
+  );
+  var top=24,fw=22,cw=(W-2*mg-fw)/DAYS.length,rh=22,aw=W-2*mg;
+  doc.setFillColor(245,244,240);
+  doc.rect(mg,top,aw,10,'F');
+  doc.setDrawColor(229,227,222);
+  doc.setLineWidth(0.25);
+  doc.rect(mg,top,aw,10,'D');
+  doc.setTextColor(153,153,153);
+  doc.setFontSize(7);
+  doc.setFont('helvetica','bold');
+  doc.text('SIRA',mg+fw/2,top+6.5,{
+    align:'center'
+  }
+  );
+  DAYS.forEach(function(d,di){
+    doc.text(d.toUpperCase(),mg+fw+di*cw+cw/2,top+6.5,{
+      align:'center'
+    }
+    );
+  }
+  );
+  SLOTS.forEach(function(slot,si){
+    var ry=top+10+si*rh,isL=slot.t==='b',rhi=isL?10:rh;
+    doc.setFillColor(isL?255:si%2===0?255:252,isL?251:252,isL?235:250);
+    doc.rect(mg,ry,aw,rhi,'F');
+    doc.setDrawColor(229,227,222);
+    doc.setLineWidth(0.2);
+    doc.rect(mg,ry,aw,rhi,'D');
+    doc.setFillColor(245,244,240);
+    doc.rect(mg,ry,fw,rhi,'F');
+    if(isL){
+      doc.setTextColor(217,119,6);
+      doc.setFontSize(7);
+      doc.setFont('helvetica','bold');
+      doc.text('OGLE',mg+fw/2,ry+rhi/2+2,{
+        align:'center'
+      }
+      );
+    }
+    else{
+      var num=slot.l.split('.')[0];
+      doc.setTextColor(17,17,17);
+      doc.setFontSize(9);
+      doc.setFont('helvetica','bold');
+      doc.text(num+'.',mg+fw/2,ry+rh*.42,{
+        align:'center'
+      }
+      );
+      doc.setTextColor(153,153,153);
+      doc.setFontSize(5.5);
+      doc.setFont('helvetica','normal');
+      doc.text('Ders',mg+fw/2,ry+rh*.7,{
+        align:'center'
+      }
+      );
+    }
+    if(isL){
       var lx=mg+fw;
-      doc.setFillColor(255,248,230); doc.rect(lx+.5,ry+.5,cw*DAYS.length-1,rhi-1,'F');
-      doc.setTextColor(217,119,6); doc.setFontSize(8); doc.setFont('helvetica','bold');
-      doc.text('OGLE ARASI',lx+cw*DAYS.length/2,ry+rhi/2+2.5,{align:'center'});
-    } else {
-      DAYS.forEach(function(day,di) {
-        var cx=mg+fw+di*cw;
-        var eid=DB.schedule[day]&&DB.schedule[day][si];
-        var e=eid?DB.entries.find(function(x){ return x.id===eid; }):null;
-        var tc=e?DB.teachers.find(function(x){ return x.id===e.tid; }):null;
-        if (e) {
+      doc.setFillColor(255,248,230);
+      doc.rect(lx+.5,ry+.5,cw*DAYS.length-1,rhi-1,'F');
+      doc.setTextColor(217,119,6);
+      doc.setFontSize(8);
+      doc.setFont('helvetica','bold');
+      doc.text('OGLE ARASI',lx+cw*DAYS.length/2,ry+rhi/2+2.5,{
+        align:'center'
+      }
+      );
+    }
+    else{
+      DAYS.forEach(function(day,di){
+        var cx=mg+fw+di*cw,eid=DB.schedule[day]&&DB.schedule[day][si],show=eid&&visIds[eid],e=show?DB.entries.find(function(x){
+          return x.id===eid;
+        }
+        ):null,tc=e?DB.teachers.find(function(x){
+          return x.id===e.tid;
+        }
+        ):null;
+        if(e){
           var r=parseInt(e.color.slice(1,3),16),g=parseInt(e.color.slice(3,5),16),b=parseInt(e.color.slice(5,7),16);
           doc.setFillColor(r+(255-r)*.88,g+(255-g)*.88,b+(255-b)*.88);
           doc.rect(cx+1,ry+1,cw-2,rh-2,'F');
-          doc.setDrawColor(r,g,b); doc.setLineWidth(0.4); doc.rect(cx+1,ry+1,cw-2,rh-2,'D');
-          doc.setTextColor(r*.5,g*.5,b*.5); doc.setFontSize(7); doc.setFont('helvetica','bold');
-          var ln=e.name.length>13?e.name.slice(0,12)+'.':e.name;
-          doc.text(ln,cx+cw/2,ry+rh*.33,{align:'center'});
-          doc.setFontSize(6); doc.setFont('helvetica','normal');
-          doc.text(e.cls,cx+cw/2,ry+rh*.55,{align:'center'});
-          doc.setTextColor(120,120,120); doc.setFontSize(5);
-          var tn=tc?(tc.name.length>15?tc.name.slice(0,14)+'.':tc.name):'';
-          doc.text(tn,cx+cw/2,ry+rh*.76,{align:'center'});
+          doc.setDrawColor(r,g,b);
+          doc.setLineWidth(0.4);
+          doc.rect(cx+1,ry+1,cw-2,rh-2,'D');
+          doc.setTextColor(r*.5,g*.5,b*.5);
+          doc.setFontSize(7);
+          doc.setFont('helvetica','bold');
+          var ln=e.lesson.length>13?e.lesson.slice(0,12)+'.':e.lesson;
+          doc.text(ln,cx+cw/2,ry+rh*.33,{
+            align:'center'
+          }
+          );
+          doc.setFontSize(6);
+          doc.setFont('helvetica','normal');
+          var l2=curView==='cls'?(tc?tc.name:'?'):e.cls;
+          if(l2.length>14)l2=l2.slice(0,13)+'.';
+          doc.text(l2,cx+cw/2,ry+rh*.57,{
+            align:'center'
+          }
+          );
         }
-      });
+      }
+      );
     }
-  });
-
-  doc.setFillColor(245,244,240); doc.rect(0,H-8,W,8,'F');
-  doc.setTextColor(180,178,172); doc.setFontSize(6); doc.setFont('helvetica','normal');
-  doc.text(school+' · '+year+' '+sem+' · Ders Programı',W/2,H-2.5,{align:'center'});
-  doc.save((school||'program').replace(/ /g,'_')+'_DersProgrami.pdf');
+  }
+  );
+  doc.setFillColor(245,244,240);
+  doc.rect(0,H-8,W,8,'F');
+  doc.setTextColor(180,178,172);
+  doc.setFontSize(6);
+  doc.setFont('helvetica','normal');
+  doc.text(school+' \u00b7 '+year+' '+sem,W/2,H-2.5,{
+    align:'center'
+  }
+  );
+  doc.save((school||'program').replace(/[^a-zA-Z0-9\u00c0-\u024f]/g,'_')+'.pdf');
   toast('PDF indiriliyor...','ok');
 }
-
-// ─── BOOT ────────────────────────────────────
+function boot(){
+  ensureGrid();
+  fillHR();
+  renderTeachers();
+  renderLessons();
+  renderCls();
+  loadSch();
+  refreshSched();
+  updateStats();
+}
 load();
-ensureGrid();
-renderTeachers();
-renderLessons();
-renderCls();
-loadSch();
-refreshSched();
+boot();
 </script>
 </body>
 </html>
