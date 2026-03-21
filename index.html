@@ -696,18 +696,9 @@ function cleanSched() {
 function canPlace(entry, day, si) {
   // Slot dolu mu?
   if (DB.schedule[day][si] !== null) return false;
-  // Öğretmen o gün yok mu?
+  // Ogretmen o gun yok mu?
   var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
   if (t && t.blocked && t.blocked.indexOf(day) >= 0) return false;
-  // Aynı öğretmen aynı saatte başka günde var mı? (çakışma)
-  for (var di = 0; di < DAYS.length; di++) {
-    var d2 = DAYS[di];
-    if (d2 === day) continue;
-    var occ2 = DB.schedule[d2][si];
-    if (!occ2) continue;
-    var oe2 = DB.entries.find(function(e){ return e.id === occ2; });
-    if (oe2 && oe2.tid === entry.tid) return false;
-  }
   return true;
 }
 
@@ -772,7 +763,7 @@ function autoSchedule() {
       }
     });
 
-    // Pass 2: kalan saatleri tekli yerleştir
+    // Pass 2: kalan saatleri tekli yerleştir (max 2/gun)
     if (remaining > 0) {
       var allSlots = [];
       shuf(avDays).forEach(function(d) {
@@ -780,19 +771,8 @@ function autoSchedule() {
       });
       allSlots.forEach(function(x) {
         if (remaining <= 0) return;
-        // max 2/gun
         var alr = LS.filter(function(s){ return DB.schedule[x.d][s] === entry.id; }).length;
         if (alr >= 2) return;
-        // bitisiklik: o gunde 1 varsa yeni slot LS dizisinde ona bitisik olmali
-        if (alr === 1) {
-          var existSi = -1;
-          LS.forEach(function(s){ if (DB.schedule[x.d][s] === entry.id) existSi = s; });
-          var existIdx = LS.indexOf(existSi);
-          var newIdx = LS.indexOf(x.si);
-          // LS dizisinde komsu olmali VE gercek slot numaralari da 1 fark olmali (ogleden gecmesin)
-          if (Math.abs(newIdx - existIdx) !== 1) return;
-          if (Math.abs(x.si - existSi) !== 1) return;
-        }
         if (canPlace(entry, x.d, x.si)) {
           DB.schedule[x.d][x.si] = entry.id;
           remaining--;
@@ -897,26 +877,25 @@ function stat(n, l) {
 function checkConflicts() {
   var el = document.getElementById('cWarn');
   var msgs = [];
-  LS.forEach(function(si) {
-    var byT = {}, byC = {};
-    DAYS.forEach(function(d) {
-      var eid = DB.schedule[d] && DB.schedule[d][si];
+  // Her gun + slot icin: ayni ogretmen ayni anda 2 sinifa ders veremez
+  DAYS.forEach(function(day) {
+    LS.forEach(function(si) {
+      var eid = DB.schedule[day] && DB.schedule[day][si];
       if (!eid) return;
       var e = DB.entries.find(function(x){ return x.id === eid; });
       if (!e) return;
-      if (!byT[e.tid]) byT[e.tid] = [];
-      byT[e.tid].push(d);
-      if (!byC[e.cls]) byC[e.cls] = [];
-      byC[e.cls].push(d);
-    });
-    Object.keys(byT).forEach(function(tid) {
-      if (byT[tid].length > 1) {
-        var t = DB.teachers.find(function(x){ return x.id === tid; });
-        msgs.push('⚠ ' + (t?t.name:tid) + ' — ' + SLOTS[si].l + ' saatinde çakışıyor (' + byT[tid].join(', ') + ')');
-      }
-    });
-    Object.keys(byC).forEach(function(cls) {
-      if (byC[cls].length > 1) msgs.push('⚠ ' + cls + ' sınıfı — ' + SLOTS[si].l + ' saatinde çakışıyor');
+      // Ayni gun ayni slotta baska bir entry ayni ogretmenden mi?
+      // (Bu normalde olamaz cunku slot dolu ama manuel duzenleme icin kontrol)
+      DAYS.forEach(function(day2) {
+        if (day2 <= day) return; // tekrar saymasin
+        var eid2 = DB.schedule[day2] && DB.schedule[day2][si];
+        if (!eid2) return;
+        var e2 = DB.entries.find(function(x){ return x.id === eid2; });
+        if (e2 && e2.tid === e.tid) {
+          var t = DB.teachers.find(function(x){ return x.id === e.tid; });
+          msgs.push('⚠ ' + (t?t.name:e.tid) + ' — ' + SLOTS[si].l + ' saatinde cakisiyor (' + day + ' ve ' + day2 + ')');
+        }
+      });
     });
   });
   el.style.display = msgs.length ? '' : 'none';
