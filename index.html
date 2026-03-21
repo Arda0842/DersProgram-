@@ -181,7 +181,7 @@ tr:last-child td{border-bottom:none;}
       <div class="fg"><div class="fl">Branş / Unvan</div><input id="tB" placeholder="örn: Matematik Öğretmeni"></div>
       <div class="fg">
         <div class="fl">Verecek Dersler (branştan farklı olabilir)</div>
-        <div style="display:flex;gap:6px;margin-bottom:6px;"><input id="tDInp" placeholder="Ders adı yazıp Enter..." onkeydown="if(event.key===&#39;Enter&#39;)addTDers()"><button class="btn blue sm" onclick="addTDers()">+</button></div>
+        <div style="display:flex;gap:6px;margin-bottom:6px;"><input id="tDInp" placeholder="Ders adı yazıp Enter..." onkeydown="if(event.key==='Enter')addTDers()"><button class="btn blue sm" onclick="addTDers()">+</button></div>
         <div id="tDersList" style="display:flex;flex-wrap:wrap;gap:4px;min-height:26px;"></div>
         <div style="font-size:10px;color:var(--ink3);margin-top:3px;">Branş adı otomatik eklenir; farklı dersler için ekleyin.</div>
       </div>
@@ -267,8 +267,8 @@ tr:last-child td{border-bottom:none;}
   </div>
   <div class="fbar">
     <div class="vtabs">
-      <button class="vtab on" id="vtC" onclick="setView(&#39;cls&#39;,this)">&#128203; Sınıf Programı</button>
-      <button class="vtab"    id="vtT" onclick="setView(&#39;tch&#39;,this)">&#128100; Öğretmen Programı</button>
+      <button class="vtab on" id="vtC" onclick="setView('cls',this)">📋 Sınıf Programı</button>
+      <button class="vtab"    id="vtT" onclick="setView('tch',this)">👤 Öğretmen Programı</button>
     </div>
     <select id="fSel" onchange="drawTable()" style="width:auto;min-width:180px;"></select>
     <span id="fInfo" style="font-size:11px;color:var(--ink3);"></span>
@@ -406,9 +406,20 @@ function toast(msg, type) {
   clearTimeout(t._t);
   t._t = setTimeout(function(){ t.className = 'toast'; }, 2600);
 }
+
+// ─── FIX 1: color() fonksiyonu (clr yerine) ──
 function color(i) { return COLORS[i % COLORS.length]; }
+// clr() alias — orijinal kodda clr() çağrılıyordu, artık color()'a yönlendiriyor
+function clr(i) { return color(i); }
+
 function ini(name) {
   return String(name||'').split(' ').map(function(w){ return w[0]||''; }).slice(0,2).join('').toUpperCase();
+}
+
+// ─── FIX 2: fillSelects() eksik fonksiyon ────
+function fillSelects() {
+  fillTSelect();
+  fillTHR();
 }
 
 // ─── SCHOOL SETTINGS ─────────────────────────
@@ -423,7 +434,6 @@ function saveSch() {
 function loadSch() {
   document.getElementById('sN').value = DB.school.name || '';
   document.getElementById('sY').value = DB.school.year || '2025-2026';
-  // set select value safely
   var sel = document.getElementById('sS');
   for (var i = 0; i < sel.options.length; i++) {
     if (sel.options[i].text === DB.school.sem) { sel.selectedIndex = i; break; }
@@ -459,7 +469,6 @@ function renderCls() {
 }
 
 // ─── TEACHER FORM ────────────────────────────
-function hrClick() { /* devre dışı */ }
 function dayClick(btn) { btn.classList.toggle('off'); }
 
 function addTDers() {
@@ -498,7 +507,7 @@ function addTeacher() {
     homeroom: hr,
     klub: klub,
     blocked: blocked,
-    color: clr(DB.teachers.length)
+    color: color(DB.teachers.length)   // ← DÜZELTME: clr() → color()
   };
   var lessons = tempDers.slice();
   if (lessons.indexOf(branch) < 0) lessons.unshift(branch);
@@ -512,7 +521,7 @@ function addTeacher() {
   document.querySelectorAll('#tDays .day').forEach(function(b){ b.classList.remove('off'); });
   tempDers = []; renderTDersList();
   renderTeachers();
-  fillSelects();
+  fillSelects();   // ← fillSelects() artık tanımlı
   fillTHR();
   toast(name + ' kaydedildi', 'ok');
 }
@@ -541,13 +550,12 @@ function renderTeachers() {
   em.style.display = 'none';
   el.innerHTML = DB.teachers.map(function(t) {
     var bd = (t.blocked && t.blocked.length) ? ' · <span style="color:var(--red);font-size:10px;">✕ ' + t.blocked.map(function(d){ return d.substring(0,3); }).join(', ') + '<\/span>' : '';
-    var hr = t.homeroom ? ' · <span style="font-size:10px;background:var(--bl);color:var(--blue);padding:1px 6px;border-radius:4px;">Sınıf Öğrt.<\/span>' : '';
-    var ls = (t.lessons && t.lessons.length) ? '<br><span style="color:var(--blue);font-size:10px;">&#128218; ' + t.lessons.map(esc).join(', ') + '<\/span>' : '';
+    var ls = (t.lessons && t.lessons.length) ? '<br><span style="color:var(--blue);font-size:10px;">📚 ' + t.lessons.map(esc).join(', ') + '<\/span>' : '';
     var hrTag  = t.homeroom ? '<span class="hr-tag">' + esc(t.homeroom) + ' Sınıf Öğrt.<\/span>' : '';
-    var klTag  = t.klub ? '<span class="klub-tag">&#127981; ' + esc(t.klub) + '<\/span>' : '';
+    var klTag  = t.klub ? '<span class="klub-tag">🏫 ' + esc(t.klub) + '<\/span>' : '';
     return '<div class="tcard">'
       + '<div class="tav" style="background:' + t.color + '">' + esc(ini(t.name)) + '<\/div>'
-      + '<div class="tinfo"><div class="tname">' + esc(t.name) + hrTag + '<\/div>'
+      + '<div class="tinfo"><div class="tname">' + esc(t.name) + hrTag + klTag + '<\/div>'
       + '<div class="tmeta">' + esc(t.branch) + ls + bd + '<\/div><\/div>'
       + '<button class="btn danger xs" onclick="remTeacher(\'' + t.id + '\')">Sil<\/button>'
       + '<\/div>';
@@ -597,9 +605,9 @@ function fillChips() {
   var t = tid ? DB.teachers.find(function(x){ return x.id === tid; }) : null;
   var html = '';
   if (t && t.homeroom) {
-    html += '<button type="button" class="chip" id="chipAll" onclick="selAll()"">Tümü<\/button>';
+    html += '<button type="button" class="chip" id="chipAll" onclick="selAll()">Tümü<\/button>';
   }
-  DB.classes.forEach(function(c, i) {
+  DB.classes.forEach(function(c) {
     html += '<button type="button" class="chip" data-c="' + esc(c) + '" onclick="togCls(this)">' + esc(c) + '<\/button>';
   });
   el.innerHTML = html;
@@ -630,7 +638,7 @@ function addLesson() {
   if (!name) { toast('Ders adı girin', 'err'); return; }
   if (!selCls.length) { toast('En az 1 sınıf seçin', 'err'); return; }
   var t = DB.teachers.find(function(x){ return x.id === tid; });
-  var c = t ? t.color : clr(DB.entries.length);
+  var c = t ? t.color : color(DB.entries.length);  // ← DÜZELTME: clr() → color()
   selCls.forEach(function(cls) {
     DB.entries.push({ id:'e'+Date.now()+Math.random(), tid:tid, lesson:name, name:name, cls:cls, hrs:hrs, color:c });
   });
@@ -686,15 +694,11 @@ function cleanSched() {
 }
 
 function canPlace(entry, day, si) {
-  // slot free?
   if (DB.schedule[day][si] !== null) return false;
-  // blocked day?
   var t = DB.teachers.find(function(x){ return x.id === entry.tid; });
   if (t && t.blocked && t.blocked.indexOf(day) >= 0) return false;
-  // max 2 same entry per day
   var inDay = LS.filter(function(s){ return DB.schedule[day][s] === entry.id; }).length;
   if (inDay >= 2) return false;
-  // if already 1 in day → new slot must be adjacent
   if (inDay === 1) {
     var pos = LS.indexOf(si);
     var existPos = -1;
@@ -702,14 +706,6 @@ function canPlace(entry, day, si) {
     var adj = (pos === existPos - 1 || pos === existPos + 1) && Math.abs(si - LS[existPos]) === 1;
     if (!adj) return false;
   }
-  // teacher not double-booked same slot
-  DAYS.forEach(function(d) {
-    if (d === day) return;
-    var occ = DB.schedule[d][si];
-    if (!occ) return;
-    var oe = DB.entries.find(function(e){ return e.id === occ; });
-    if (oe && oe.tid === entry.tid) return false; // can't enforce inside forEach, handled below
-  });
   for (var di = 0; di < DAYS.length; di++) {
     var d2 = DAYS[di];
     if (d2 === day) continue;
@@ -766,7 +762,6 @@ function autoSchedule() {
     var avDays = shuf(DAYS.filter(function(d){ return blocked.indexOf(d) < 0; }));
     var placed = 0;
 
-    // Pass 1: place as 2-consecutive blocks
     if (entry.hrs >= 2) {
       avDays.forEach(function(day) {
         if (placed >= entry.hrs) return;
@@ -774,7 +769,7 @@ function autoSchedule() {
         if (alr > 0) return;
         for (var pi = 0; pi < LS.length - 1; pi++) {
           var si1 = LS[pi], si2 = LS[pi+1];
-          if (si2 - si1 !== 1) continue; // must be truly consecutive (no lunch gap)
+          if (si2 - si1 !== 1) continue;
           if (canPlace(entry, day, si1) && canPlace(entry, day, si2)) {
             DB.schedule[day][si1] = entry.id;
             DB.schedule[day][si2] = entry.id;
@@ -785,7 +780,6 @@ function autoSchedule() {
       });
     }
 
-    // Pass 2: remaining singles — only on days with 0 of this entry
     if (placed < entry.hrs) {
       var sinDays = shuf(avDays.filter(function(d){
         return LS.every(function(s){ return DB.schedule[d][s] !== entry.id; });
@@ -838,7 +832,6 @@ function drawTable() {
     var tObj = DB.teachers.find(function(x){ return x.id === selVal; });
     if (infoEl) infoEl.textContent = tObj ? tObj.name + ' öğretmeninin programı' : '';
   }
-  var t = tbl;
   var h = '<thead><tr><th>Sıra<\/th>';
   DAYS.forEach(function(d){ h += '<th>' + d + '<\/th>'; });
   h += '<\/tr><\/thead><tbody>';
@@ -874,7 +867,7 @@ function drawTable() {
     h += '<\/tr>';
   });
   h += '<\/tbody>';
-  t.innerHTML = h;
+  tbl.innerHTML = h;
   checkConflicts();
 }
 
