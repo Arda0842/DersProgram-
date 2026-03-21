@@ -840,7 +840,7 @@ function autoSchedule() {
 
   const shuffle=arr=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;};
 
-  // Sort by most hours first
+  // Sort by most hours first (greedy — hardest to place first)
   const tasks=[...DB.entries].sort((a,b)=>b.hours-a.hours);
 
   for(const entry of tasks){
@@ -849,27 +849,42 @@ function autoSchedule() {
     let placed=0;
     const dayOrder=shuffle([...DAYS]).filter(d=>!blocked.includes(d));
 
-    // Pass 1: 2-block
+    // ── RULE: if 2 lessons needed in a day they MUST be consecutive (no gap) ──
+    // So we always try to place as a 2-consecutive block first.
+    // Singles are only placed on days that have 0 of this entry (never leave a lone
+    // lesson on a day that already has 1 — that would require going back).
+
+    // Pass 1: place 2-consecutive blocks
     for(const day of dayOrder){
       if(placed>=entry.hours) break;
       if(entry.hours-placed<2) break;
+      // Don't put a second pair on a day that already has this entry
       const alreadyInDay=LESSON_SLOTS.filter(s=>DB.schedule[day][s]===entry.id).length;
       if(alreadyInDay>0) continue;
       for(let pi=0;pi<LESSON_SLOTS.length-1;pi++){
         const si1=LESSON_SLOTS[pi],si2=LESSON_SLOTS[pi+1];
-        if(canPlace(entry,day,si1)&&canPlace(entry,day,si2)){
+        // Both slots must be the next adjacent index (truly consecutive, no lunch gap)
+        if(si2-si1!==1) continue; // skip across lunch break gap
+        if(canPlaceBase(entry,day,si1)&&canPlaceBase(entry,day,si2)){
           DB.schedule[day][si1]=entry.id;
           DB.schedule[day][si2]=entry.id;
-          placed+=2; if(placed>=entry.hours) break; pi++;
+          placed+=2;
+          if(placed>=entry.hours) break;
+          pi++; // skip used pair
         }
       }
     }
 
-    // Pass 2: singles
-    const allSlots=shuffle(dayOrder.flatMap(d=>LESSON_SLOTS.map(si=>({d,si}))));
-    for(const {d,si} of allSlots){
+    // Pass 2: place remaining as singles — only on days that have 0 of this entry
+    // (because if a day already has 1, adding a non-adjacent one would violate the rule)
+    const singleSlots=shuffle(
+      dayOrder
+        .filter(d=>LESSON_SLOTS.every(s=>DB.schedule[d][s]!==entry.id)) // days with 0 of this entry
+        .flatMap(d=>LESSON_SLOTS.map(si=>({d,si})))
+    );
+    for(const {d,si} of singleSlots){
       if(placed>=entry.hours) break;
-      if(canPlace(entry,d,si)) { DB.schedule[d][si]=entry.id; placed++; }
+      if(canPlaceBase(entry,d,si)){ DB.schedule[d][si]=entry.id; placed++; }
     }
   }
 
@@ -879,40 +894,60 @@ function autoSchedule() {
   toast('Program oluşturuldu!', false, 'ok');
 }
 
-function canPlace(entry, day, si) {
+// Base placement check (no consecutive-block enforcement here — that is handled by the scheduler logic above)
+function canPlaceBase(entry, day, si) {
   if(DB.schedule[day][si]!==null) return false;
   const teacher=DB.teachers.find(t=>t.id===entry.teacherId);
   const blocked=teacher?teacher.blockedDays||[]:[];
   if(blocked.includes(day)) return false;
-  // Max 2 same entry per day
+
+  // Max 2 of same entry per day
   const inDay=LESSON_SLOTS.filter(s=>DB.schedule[day][s]===entry.id).length;
   if(inDay>=2) return false;
-  // Teacher not double-booked same slot
-  const teacherId=entry.teacherId;
+
+  // Teacher not double-booked in the same time-slot across days
   for(const d of DAYS){
     if(d===day) continue;
     const occ=DB.schedule[d][si];
-    if(occ&&occ!==null){
+    if(occ){
       const oEntry=DB.entries.find(e=>e.id===occ);
-      if(oEntry&&oEntry.teacherId===teacherId) return false;
+      if(oEntry&&oEntry.teacherId===entry.teacherId) return false;
     }
   }
-  // Same class not double-booked same slot
+
+  // Same class not double-booked in the same time-slot across days
   for(const d of DAYS){
     if(d===day) continue;
     const occ=DB.schedule[d][si];
-    if(occ&&occ!==null){
+    if(occ){
       const oEntry=DB.entries.find(e=>e.id===occ);
       if(oEntry&&oEntry.cls===entry.cls) return false;
     }
   }
-  // No 3-in-row
+
+  return true;
+}
+
+// Full canPlace used by the modal conflict checker — includes adjacency rule
+function canPlace(entry, day, si) {
+  if(!canPlaceBase(entry,day,si)) return false;
+
+  // Adjacency rule: if this entry already has 1 slot in this day,
+  // the new slot must be immediately adjacent to it
   const pos=LESSON_SLOTS.indexOf(si);
-  let streak=1;
-  if(pos>0&&DB.schedule[day][LESSON_SLOTS[pos-1]]===entry.id) streak++;
-  if(pos>1&&DB.schedule[day][LESSON_SLOTS[pos-2]]===entry.id) streak++;
-  if(pos<LESSON_SLOTS.length-1&&DB.schedule[day][LESSON_SLOTS[pos+1]]===entry.id) streak++;
-  if(streak>=3) return false;
+  const existingPositions=LESSON_SLOTS
+    .map((s,i)=>({s,i}))
+    .filter(({s})=>DB.schedule[day][s]===entry.id)
+    .map(({i})=>i);
+
+  if(existingPositions.length===1){
+    const ep=existingPositions[0];
+    // Must be adjacent (pos === ep±1) AND truly consecutive index (no lunch gap)
+    const adjOk=(pos===ep-1||pos===ep+1)&&Math.abs(si-LESSON_SLOTS[ep])===1;
+    if(!adjOk) return false;
+  }
+  if(existingPositions.length>=2) return false; // already full for the day
+
   return true;
 }
 
