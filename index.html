@@ -155,6 +155,8 @@ tr:last-child td{border-bottom:none;}
 .vtabs{display:flex;gap:4px;background:var(--bg);border:1.5px solid var(--line);border-radius:9px;padding:4px;}
 .vtab{padding:6px 14px;border-radius:6px;border:none;background:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--ink3);}
 .vtab.on{background:var(--w);color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.klub-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--pl,#f5f3ff);color:#7c3aed;font-weight:700;display:inline-block;margin-left:5px;vertical-align:middle;}
+:root{--pl:#f5f3ff;}
 </style>
 </head>
 <body>
@@ -186,6 +188,10 @@ tr:last-child td{border-bottom:none;}
       <div class="fg">
         <div class="fl">Sınıf Öğretmenliği</div>
         <select id="tHR"><option value="">— Yok —</option></select>
+      </div>
+      <div class="fg">
+        <div class="fl">Kulüp Adı (varsa)</div>
+        <input id="tKlup" placeholder="örn: Satranç Kulübü, Müzik Kulübü...">
       </div>
       <div class="fg">
         <div class="fl">Olmayacağı Günler</div>
@@ -480,6 +486,7 @@ function addTeacher() {
   var name   = (document.getElementById('tN').value||'').trim();
   var branch = (document.getElementById('tB').value||'').trim();
   var hr     = document.getElementById('tHR').value;
+  var klub   = (document.getElementById('tKlup').value||'').trim();
   if (!name)   { toast('Ad Soyad girin', 'err'); return; }
   if (!branch) { toast('Branş girin', 'err'); return; }
   var blocked = [];
@@ -489,6 +496,7 @@ function addTeacher() {
     name: name,
     branch: branch,
     homeroom: hr,
+    klub: klub,
     blocked: blocked,
     color: clr(DB.teachers.length)
   };
@@ -500,6 +508,7 @@ function addTeacher() {
   // reset form
   document.getElementById('tN').value = '';
   document.getElementById('tB').value = '';
+  document.getElementById('tKlup').value = '';
   document.querySelectorAll('#tDays .day').forEach(function(b){ b.classList.remove('off'); });
   tempDers = []; renderTDersList();
   renderTeachers();
@@ -534,7 +543,8 @@ function renderTeachers() {
     var bd = (t.blocked && t.blocked.length) ? ' · <span style="color:var(--red);font-size:10px;">✕ ' + t.blocked.map(function(d){ return d.substring(0,3); }).join(', ') + '</span>' : '';
     var hr = t.homeroom ? ' · <span style="font-size:10px;background:var(--bl);color:var(--blue);padding:1px 6px;border-radius:4px;">Sınıf Öğrt.</span>' : '';
     var ls = (t.lessons && t.lessons.length) ? '<br><span style="color:var(--blue);font-size:10px;">&#128218; ' + t.lessons.map(esc).join(', ') + '</span>' : '';
-    var hrTag = t.homeroom ? '<span class="hr-tag">' + esc(t.homeroom) + ' Sınıf Öğrt.</span>' : '';
+    var hrTag  = t.homeroom ? '<span class="hr-tag">' + esc(t.homeroom) + ' Sınıf Öğrt.</span>' : '';
+    var klTag  = t.klub ? '<span class="klub-tag">&#127981; ' + esc(t.klub) + '</span>' : '';
     return '<div class="tcard">'
       + '<div class="tav" style="background:' + t.color + '">' + esc(ini(t.name)) + '</div>'
       + '<div class="tinfo"><div class="tname">' + esc(t.name) + hrTag + '</div>'
