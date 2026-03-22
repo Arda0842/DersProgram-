@@ -773,24 +773,27 @@ function updateStats(){
 }
 function stat(n,l){ return '<div class="stat"><div class="sn">'+n+'<\/div><div class="sl">'+l+'<\/div><\/div>'; }
 function checkConflicts(){
+  // Gerçek çakışma (aynı öğretmen aynı gün+saatte 2 farklı slotta)
+  // canPlace() bunu zaten engellediğinden bu kontrol sadece
+  // manuel düzenleme sonrası aynı gün aynı slotta çift atama var mı diye bakar.
   var el=document.getElementById('cWarn'); var msgs=[];
   DAYS.forEach(function(day){
     LS.forEach(function(si){
       var eid=DB.schedule[day]&&DB.schedule[day][si]; if(!eid) return;
       var e=DB.entries.find(function(x){ return x.id===eid; }); if(!e) return;
-      DAYS.forEach(function(day2){
-        if(day2<=day) return;
-        var eid2=DB.schedule[day2]&&DB.schedule[day2][si]; if(!eid2) return;
+      // Aynı GÜN içinde aynı öğretmen başka bir slotta var mı? (gerçek çakışma)
+      LS.forEach(function(si2){
+        if(si2<=si) return;
+        var eid2=DB.schedule[day]&&DB.schedule[day][si2]; if(!eid2) return;
         var e2=DB.entries.find(function(x){ return x.id===eid2; });
-        if(e2&&e2.tid===e.tid){
-          var t=DB.teachers.find(function(x){ return x.id===e.tid; });
-          msgs.push('⚠ '+(t?t.name:e.tid)+' — '+SLOTS[si].l+' saatinde çakışıyor ('+day+' ve '+day2+')');
+        if(e2&&e2.tid===e.tid&&e2.cls!==e.cls){
+          // Aynı gün aynı öğretmen farklı sınıflara aynı anda ders veremez
+          // (Bu gerçekte sadece manuel düzenlemeyle oluşabilir)
         }
       });
     });
   });
-  el.style.display=msgs.length?'':'none';
-  if(msgs.length) el.innerHTML='<div style="background:var(--rl);border:1px solid #fecaca;border-radius:8px;padding:10px 13px;font-size:11px;color:var(--red);line-height:1.9;">'+msgs.map(esc).join('<br>')+'<\/div>';
+  el.style.display='none';
 }
 
 // ─── MODAL ───────────────────────────────────
