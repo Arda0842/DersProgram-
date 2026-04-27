@@ -1,6 +1,3 @@
-<img width="1919" height="905" alt="image" src="https://github.com/user-attachments/assets/fc674eb4-291f-4da6-8f6b-2c8038a389ae" />
-
-
 # 🗓️ Pratik Ders Programı Oluşturucu
 
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
@@ -29,6 +26,7 @@ Proje, dış bağımlılıkları en aza indirmek ve en yüksek performansı sağ
 * **Mantık & Algoritma:** Vanilla JavaScript (ES5/ES6)
 * **PDF Dışa Aktarım:** `jsPDF` Kütüphanesi (CDN üzerinden)
 * **Veri Saklama:** Tarayıcı `localStorage` API
+<img width="1919" height="905" alt="image" src="https://github.com/user-attachments/assets/fc674eb4-291f-4da6-8f6b-2c8038a389ae" />
 
 ## 📂 Dosya Yapısı
 
